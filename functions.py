@@ -1,13 +1,29 @@
 import pandas as pd
 
 
+def extract_sectors():
+    df = pd.read_excel('C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\Companies list.xlsx',
+                       sheet_name='CompanysSector')
+    sectors = pd.unique(df['Sector'])
+    return sectors
+
+
 def create_companys_sector_dictionary():
     df = pd.read_excel('C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\Companies list.xlsx',
                        sheet_name='CompanysSector')
     companys_sector_dic = {}
     for i in df.index:
-        companys_sector_dic[df.iloc[i, 0]] = df.iloc[i, 1]
+        companys_sector_dic[df.iloc[i, 0]] = [df.iloc[i, 1], df['Yahoo ticker'][i]]
     return companys_sector_dic
+
+
+def create_companys_yahoo_ticker_dictionary():
+    df = pd.read_excel('C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\Companies list.xlsx',
+                       sheet_name='CompanysSector')
+    companys_yticker_dic = {}
+    for i in df.index:
+        companys_yticker_dic[df['Name'][i]] = df['Yahoo ticker'][i]
+    return companys_yticker_dic
 
 
 def prepare_df(df):

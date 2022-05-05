@@ -1,10 +1,5 @@
 class Balance():
     def __init__(self, df):
-        def index_number():
-            nonlocal ind_num
-            ind_num += 1
-            return ind_num
-
         self.CashAndEquivalents = None
         self.ShortTermInvestments = None
         self.AccountsReceivableNet = None
@@ -45,46 +40,38 @@ class Balance():
         self.CashAndShortTermInvestments = None
         self.TotalDebt = None
 
-        ind_num = 0
-        setattr(self, 'CashAndEquivalents', Period(df, ind_num))
-        setattr(self, 'ShortTermInvestments', Period(df, index_number()))
-        setattr(self, 'AccountsReceivableNet', Period(df, index_number()))
-        setattr(self, 'Inventory', Period(df, index_number()))
-        setattr(self, 'PrepaidExpenses', Period(df, index_number()))
-        setattr(self, 'OtherCurrentAssets', Period(df, index_number()))
-        setattr(self, 'TotalCurrentAssets', Period(df, index_number()))
-        setattr(self, 'PropertyPlantAndEquipmentNet', Period(df, index_number()))
-        setattr(self, 'RealEstateOwned', Period(df, index_number()))
-        setattr(self, 'CapitalizedPurchasedSoftware', Period(df, index_number()))
-        setattr(self, 'LongtermInvestments', Period(df, index_number()))
-        setattr(self, 'Goodwill', Period(df, index_number()))
-        setattr(self, 'OtherIntangibles', Period(df, index_number()))
-        setattr(self, 'OtherLongtermAssets', Period(df, index_number()))
-        setattr(self, 'TotalAssets', Period(df, index_number()))
-        setattr(self, 'AccountsPayable', Period(df, index_number()))
-        setattr(self, 'AccruedExpenses', Period(df, index_number()))
-        setattr(self, 'ShorttermBorrowings', Period(df, index_number()))
-        setattr(self, 'CurrentPortionofLTDebt', Period(df, index_number()))
-        setattr(self, 'CurrentPortionofCapitalLeaseObligations', Period(df, index_number()))
-        setattr(self, 'OtherCurrentLiabilities', Period(df, index_number()))
-        setattr(self, 'TotalCurrentLiabilities', Period(df, index_number()))
-        setattr(self, 'LongtermDebt', Period(df, index_number()))
-        setattr(self, 'CapitalLeases', Period(df, index_number()))
-        setattr(self, 'OtherNoncurrentLiabilities', Period(df, index_number()))
-        setattr(self, 'TotalLiabilities', Period(df, index_number()))
-        setattr(self, 'CommonStock', Period(df, index_number()))
-        setattr(self, 'AdditionalPaidInCapital', Period(df, index_number()))
-        setattr(self, 'RetainedEarnings', Period(df, index_number()))
-        setattr(self, 'TreasuryStock', Period(df, index_number()))
-        setattr(self, 'OtherCommonEquityAdj', Period(df, index_number()))
-        setattr(self, 'CommonEquity', Period(df, index_number()))
-        setattr(self, 'TotalPreferredEquity', Period(df, index_number()))
-        setattr(self, 'MinorityInterestTotal', Period(df, index_number()))
-        setattr(self, 'OtherEquity', Period(df, index_number()))
-        setattr(self, 'TotalEquity', Period(df, index_number()))
-        setattr(self, 'TotalLiabilitiesAndEquity', Period(df, index_number()))
-        setattr(self, 'CashAndShortTermInvestments', Period(df, index_number()))
-        setattr(self, 'TotalDebt', Period(df, index_number()))
+        positions_dic = {'Cash And Equivalents': 'CashAndEquivalents', 'Short Term Investments': 'ShortTermInvestments',
+                         'Accounts Receivable': 'AccountsReceivableNet', 'Inventory': 'Inventory',
+                         'Prepaid Expenses': 'PrepaidExpenses', 'Other Current Assets': 'OtherCurrentAssets',
+                         'Total Current Assets': 'TotalCurrentAssets',
+                         'Property Plant And Equipment': 'PropertyPlantAndEquipmentNet',
+                         'Real Estate Owned': 'RealEstateOwned',
+                         'Capitalized / Purchased Software': 'CapitalizedPurchasedSoftware',
+                         'Long-term Investments': 'LongtermInvestments', 'Goodwill': 'Goodwill',
+                         'Other Intangibles': 'OtherIntangibles', 'Other Long-term Assets': 'OtherLongtermAssets',
+                         'Total Assets': 'TotalAssets', 'Accounts Payable': 'AccountsPayable',
+                         'Accrued Expenses': 'AccruedExpenses', 'Short-term Borrowings': 'ShorttermBorrowings',
+                         'Current Portion of LT Debt': 'CurrentPortionofLTDebt',
+                         'Current Portion of Capital Lease Obligations': 'CurrentPortionofCapitalLeaseObligations',
+                         'Other Current Liabilities': 'OtherCurrentLiabilities',
+                         'Total Current Liabilities': 'TotalCurrentLiabilities', 'Long-term Debt': 'LongtermDebt',
+                         'Capital Leases': 'CapitalLeases',
+                         'Other Non-current Liabilities': 'OtherNoncurrentLiabilities',
+                         'Total Liabilities': 'TotalLiabilities', 'Common Stock': 'CommonStock',
+                         'Additional Paid In Capital': 'AdditionalPaidInCapital',
+                         'Retained Earnings': 'RetainedEarnings', 'Treasury Stock': 'TreasuryStock',
+                         'Other Common Equity Adj': 'OtherCommonEquityAdj', 'Common Equity': 'CommonEquity',
+                         'Total Preferred Equity': 'TotalPreferredEquity', 'Minority Interest': 'MinorityInterestTotal',
+                         'Other Equity': 'OtherEquity', 'Total Equity': 'TotalEquity',
+                         'Total Liabilities And Equity': 'TotalLiabilitiesAndEquity',
+                         'Cash And Short Term Investments': 'CashAndShortTermInvestments', 'Total Debt': 'TotalDebt',
+                         'Accounts Receivable, Net': 'AccountsReceivableNet',
+                         'Property Plant And Equipment, Net': 'PropertyPlantAndEquipmentNet',
+                         'Minority Interest, Total': 'MinorityInterestTotal'}
+
+        for position in positions_dic.keys():
+            ind_num = df[df['Positions'] == position].index.values
+            setattr(self, positions_dic[position], Period(df, ind_num))
 
 
 class Period:

@@ -1,10 +1,5 @@
 class CashFlow():
     def __init__(self, df):
-        def index_number():
-            nonlocal ind_num
-            ind_num += 1
-            return ind_num
-
         self.NetIncometoStockholders = None
         self.DepreciationAmortizationCF = None
         self.AmortizationofDeferredChargesCF = None
@@ -32,33 +27,31 @@ class CashFlow():
         self.LeveredFreeCashFlow = None
         self.CashInterestPaid = None
 
-        ind_num = 0
-        setattr(self, 'NetIncometoStockholders', Period(df, ind_num))
-        setattr(self, 'DepreciationAmortizationCF', Period(df, index_number()))
-        setattr(self, 'AmortizationofDeferredChargesCF', Period(df, index_number()))
-        setattr(self, 'StockBasedComp', Period(df, index_number()))
-        setattr(self, 'ChangeInAccountsReceivable', Period(df, index_number()))
-        setattr(self, 'ChangeInInventories', Period(df, index_number()))
-        setattr(self, 'ChangeinOtherNetOperatingAssets', Period(df, index_number()))
-        setattr(self, 'OtherOperatingActivities', Period(df, index_number()))
-        setattr(self, 'CashfromOperations', Period(df, index_number()))
-        setattr(self, 'CapitalExpenditures', Period(df, index_number()))
-        setattr(self, 'CashAcquisitions', Period(df, index_number()))
-        setattr(self, 'OtherInvestingActivities', Period(df, index_number()))
-        setattr(self, 'CashfromInvesting', Period(df, index_number()))
-        setattr(self, 'DividendsPaidExSpecialDividends', Period(df, index_number()))
-        setattr(self, 'SpecialDividendPaid', Period(df, index_number()))
-        setattr(self, 'LongTermDebtIssued', Period(df, index_number()))
-        setattr(self, 'LongTermDebtRepaid', Period(df, index_number()))
-        setattr(self, 'RepurchaseofCommonStock', Period(df, index_number()))
-        setattr(self, 'OtherFinancingActivities', Period(df, index_number()))
-        setattr(self, 'CashfromFinancing', Period(df, index_number()))
-        setattr(self, 'BeginningCashCF', Period(df, index_number()))
-        setattr(self, 'ForeignExchangeRateAdjustments', Period(df, index_number()))
-        setattr(self, 'AdditionsReductions', Period(df, index_number()))
-        setattr(self, 'EndingCashCF', Period(df, index_number()))
-        setattr(self, 'LeveredFreeCashFlow', Period(df, index_number()))
-        setattr(self, 'CashInterestPaid', Period(df, index_number()))
+        positions_dic = {'Net Income to Stockholders': 'NetIncometoStockholders',
+                         'Depreciation & Amortization (CF)': 'DepreciationAmortizationCF',
+                         'Amortization of Deferred Charges (CF)': 'AmortizationofDeferredChargesCF',
+                         'Stock-Based Comp': 'StockBasedComp',
+                         'Change In Accounts Receivable': 'ChangeInAccountsReceivable',
+                         'Change In Inventories': 'ChangeInInventories',
+                         'Change in Other Net Operating Assets': 'ChangeinOtherNetOperatingAssets',
+                         'Other Operating Activities': 'OtherOperatingActivities',
+                         'Cash from Operations': 'CashfromOperations', 'Capital Expenditures': 'CapitalExpenditures',
+                         'Cash Acquisitions': 'CashAcquisitions',
+                         'Other Investing Activities': 'OtherInvestingActivities',
+                         'Cash from Investing': 'CashfromInvesting',
+                         'Dividends Paid (Ex Special Dividends)': 'DividendsPaidExSpecialDividends',
+                         'Special Dividend Paid': 'SpecialDividendPaid', 'Long-Term Debt Issued': 'LongTermDebtIssued',
+                         'Long-Term Debt Repaid': 'LongTermDebtRepaid',
+                         'Repurchase of Common Stock': 'RepurchaseofCommonStock',
+                         'Other Financing Activities': 'OtherFinancingActivities',
+                         'Cash from Financing': 'CashfromFinancing', 'Beginning Cash (CF)': 'BeginningCashCF',
+                         'Foreign Exchange Rate Adjustments': 'ForeignExchangeRateAdjustments',
+                         'Additions / Reductions': 'AdditionsReductions', 'Ending Cash (CF)': 'EndingCashCF',
+                         'Levered Free Cash Flow': 'LeveredFreeCashFlow', 'Cash Interest Paid': 'CashInterestPaid'}
+
+        for position in positions_dic.keys():
+            ind_num = df[df['Positions'] == position].index.values
+            setattr(self, positions_dic[position], Period(df, ind_num))
 
 
 class Period:

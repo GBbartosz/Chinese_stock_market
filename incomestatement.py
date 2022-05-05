@@ -1,10 +1,5 @@
 class IncomeStatement:
     def __init__(self, df):
-        def index_number():
-            nonlocal ind_num
-            ind_num += 1
-            return ind_num
-
         self.Revenue = None
         self.RevenueGrowthYoY = None
         self.CostofRevenues = None
@@ -12,6 +7,8 @@ class IncomeStatement:
         self.GrossProfitMargin = None
         self.RDExpenses = None
         self.SellingandMarketingExpense = None
+        self.SellingAdminExpenses = None
+        self.SellingGeneralAdminExpenses = None
         self.GeneralAdminExpenses = None
         self.OtherIncExp = None
         self.OperatingExpenses = None
@@ -35,12 +32,31 @@ class IncomeStatement:
         self.OperatingIncomeReported = None
         self.OperatingIncomeAdjusted = None
 
-        positions_dic = {'Revenue': 'Revenue', 'Revenue Growth (YoY)': 'RevenueGrowthYoY', 'Cost of Revenues': 'CostofRevenues', 'Gross Profit': 'GrossProfit', 'Gross Profit Margin': 'GrossProfitMargin', 'R&D Expenses': 'RDExpenses', 'Selling and Marketing Expense': 'SellingandMarketingExpense', 'General & Admin Expenses': 'GeneralAdminExpenses', 'Other Inc / (Exp)': 'OtherIncExp', 'Operating Expenses': 'OperatingExpenses', 'Operating Income': 'OperatingIncome', 'Net Interest Expenses': 'NetInterestExpenses', 'EBT, Incl. Unusual Items': 'EBTInclUnusualItems', 'EBT': 'EBT', 'Earnings of Discontinued Ops.': 'EarningsofDiscontinuedOps', 'Income Tax Expense': 'IncomeTaxExpense', 'Net Income to Company': 'NetIncometoCompany', 'Minority Interest in Earnings': 'MinorityInterestinEarnings', 'Net Income to Stockholders': 'NetIncometoStockholders', 'Preferred Dividends & Other Adj.': 'PreferredDividendsOtherAdj', 'Net Income to Common Excl Extra Items': 'NetIncometoCommonExclExtraItems', 'Basic EPS (Cont. Ops)': 'BasicEPSContOps', 'Diluted EPS (Cont. Ops)': 'DilutedEPSContOps', 'Weighted Average Basic Shares Out.': 'WeightedAverageBasicSharesOut', 'Weighted Average Diluted Shares Out.': 'WeightedAverageDilutedSharesOut', 'EBITDA': 'EBITDA', 'EBIT': 'EBIT', 'Revenue (Reported)': 'RevenueReported', 'Operating Income (Reported)': 'OperatingIncomeReported', 'Operating Income (Adjusted)': 'OperatingIncomeAdjusted'}
+        positions_dic = {'Revenue': 'Revenue', 'Revenue Growth (YoY)': 'RevenueGrowthYoY',
+                         'Cost of Revenues': 'CostofRevenues', 'Gross Profit': 'GrossProfit',
+                         'Gross Profit Margin': 'GrossProfitMargin', 'R&D Expenses': 'RDExpenses',
+                         'Selling and Marketing Expense': 'SellingandMarketingExpense',
+                         'Selling, General & Admin Expenses': 'SellingGeneralAdminExpenses',
+                         'General & Admin Expenses': 'GeneralAdminExpenses', 'Other Inc / (Exp)': 'OtherIncExp',
+                         'Operating Expenses': 'OperatingExpenses', 'Operating Income': 'OperatingIncome',
+                         'Net Interest Expenses': 'NetInterestExpenses',
+                         'EBT, Incl. Unusual Items': 'EBTInclUnusualItems', 'EBT': 'EBT',
+                         'Earnings of Discontinued Ops.': 'EarningsofDiscontinuedOps',
+                         'Income Tax Expense': 'IncomeTaxExpense', 'Net Income to Company': 'NetIncometoCompany',
+                         'Minority Interest in Earnings': 'MinorityInterestinEarnings',
+                         'Net Income to Stockholders': 'NetIncometoStockholders',
+                         'Preferred Dividends & Other Adj.': 'PreferredDividendsOtherAdj',
+                         'Net Income to Common Excl Extra Items': 'NetIncometoCommonExclExtraItems',
+                         'Basic EPS (Cont. Ops)': 'BasicEPSContOps', 'Diluted EPS (Cont. Ops)': 'DilutedEPSContOps',
+                         'Weighted Average Basic Shares Out.': 'WeightedAverageBasicSharesOut',
+                         'Weighted Average Diluted Shares Out.': 'WeightedAverageDilutedSharesOut', 'EBITDA': 'EBITDA',
+                         'EBIT': 'EBIT', 'Revenue (Reported)': 'RevenueReported',
+                         'Operating Income (Reported)': 'OperatingIncomeReported',
+                         'Operating Income (Adjusted)': 'OperatingIncomeAdjusted'}
+
         for position in positions_dic.keys():
             ind_num = df[df['Positions'] == position].index.values
-            print(position + ' ' + str(ind_num))
             setattr(self, positions_dic[position], Period(df, ind_num))
-
 
 
 class Period:
