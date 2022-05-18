@@ -6,7 +6,10 @@ import time
 from incomestatement import IncomeStatement
 from balance import Balance
 from cashflow import CashFlow
+
 import yfinance as yf
+import requests
+import io
 
 import functions as f
 
@@ -29,7 +32,6 @@ def find_nearest_price_date(f_d_d, price_dates_list):
 
 
 def find_first_date():
-
     def get_doc_first_date(n):
         incst_first_date = datetime.datetime.strptime(incst_df.columns[n], '%Y-%m-%d').date()
         b_first_date = datetime.datetime.strptime(b_df.columns[n], '%Y-%m-%d').date()
@@ -80,7 +82,7 @@ def reorganize_doc_dfs(df1, df2, df3, f_date):
         f_date = str(f_date)
         f_date_ind = df.columns.get_loc(f_date)
         frames = [df.iloc[:, 0], df.iloc[:, f_date_ind:]]
-        #uwaga na utrate informacji
+        # uwaga na utrate informacji
         df = pd.concat(frames, axis=1, join='inner')
         dfs[n] = df
     df1, df2, df3 = dfs
@@ -93,7 +95,8 @@ def compare_doc_dates(df1, df2, df3):
     df2_cols = df2.columns
     df3_cols = df3.columns
     comparison = False
-    if len(df1_cols.difference(df2_cols)) == 0 and len(df1_cols.difference(df3_cols)) == 0 and len(df2_cols.difference(df3_cols)) == 0:
+    if len(df1_cols.difference(df2_cols)) == 0 and len(df1_cols.difference(df3_cols)) == 0 and len(
+            df2_cols.difference(df3_cols)) == 0:
         comparison = True
     return comparison
 
@@ -113,11 +116,32 @@ def reorganize_price_df(df, doc_dates):
     return df
 
 
-def download_price_df(yf_tic):
-    print(yf_tic)
-    url = f'https://query1.finance.yahoo.com/v7/finance/download/{yf_tic}?period1=971913600&period2=1649548800&interval=1d&events=history&includeAdjustedClose=true'
-    p_df = pd.read_csv(url)
-    return p_df
+def create_docs_and_price_date_lists(d_df1, d_df2, d_df3, p_df):
+    d1 = list(d_df1.columns)[1:]
+    d2 = list(d_df2.columns)[1:]
+    d3 = list(d_df3.columns)[1:]
+    p_d = list(p_df['Date'])
+    return d1, d2, d3, p_d
+
+
+def compability_price_and_docs_dates(dates_lists):
+    min_dates_list = []
+    max_dates_list = []
+    successes = []
+    for dates_list in dates_lists:
+        min_dates_list.append(min(dates_list))
+        max_dates_list.append(max(dates_list))
+    for min_date in min_dates_list:
+        for max_date in max_dates_list:
+            if min_date < max_date:
+                successes.append(True)
+            else:
+                successes.append(False)
+    if False in successes:
+        success = False
+    else:
+        success = True
+    return success
 
 
 st = time.time()
@@ -129,12 +153,15 @@ first_date_by_sector_dic = {}
 all_dates = set()
 
 directory_path = 'C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\China_stock_data'
+#directory_path = 'C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\China_stock_data\\Nowy folder'
 all_files_list = os.listdir(directory_path)
 companys_dictionary = f.create_companys_dictionary(all_files_list)
 
+comp_dic = {}
+
 for company in companys_dictionary.keys():
     print(company)
-    #print(companys_sector_dic[company])
+    # print(companys_sector_dic[company])
     for doc in companys_dictionary[company]:
 
         file_name = '{0} - {1}.csv'.format(company, doc)
@@ -151,7 +178,15 @@ for company in companys_dictionary.keys():
             cf_df = doc_df
 
     sector, yf_ticker = companys_sector_dic[company]
-    price_df = download_price_df(yf_ticker)
+    price_file_name = 'C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\China_stock_data\\price\\{} price.csv'\
+        .format(company)
+    price_df = pd.read_csv(price_file_name).iloc[:, 1:]
+
+    incst_dates, b_dates, cf_dates, price_dates = create_docs_and_price_date_lists(incst_df, b_df, cf_df, price_df)
+    if compability_price_and_docs_dates([incst_dates, b_dates, cf_dates, price_dates]) is False:
+        print('dates are not compatible')
+        continue
+
     doc_first_date, price_first_date = find_first_date()
     incst_df, b_df, cf_df, doc_dates_list = reorganize_doc_dfs(incst_df, b_df, cf_df, doc_first_date)
 
@@ -166,19 +201,19 @@ for company in companys_dictionary.keys():
     b = Balance(b_df)
     cf = CashFlow(cf_df)
 
-    print(incst.Revenue.period(2021, 4))
-    #print(incst.WeightedAverageDilutedSharesOut.period(2021, 4))
+
+    # print(incst.Revenue.period(2021, 4))
+    # print(incst.WeightedAverageDilutedSharesOut.period(2021, 4))
 
 
 sector_keys, sector_values = first_date_data_consolidate()
 
-
 xticks_loc = range(len(sector_keys))
 fig, ax = plt.subplots()
 ax.scatter(sector_keys, sector_values)
-#fig, ax = plt.subplots(1,2)
-#ax[0][0].scatter(sector_keys, sector_values)
-#ax[0][1].scatter()
+# fig, ax = plt.subplots(1,2)
+# ax[0][0].scatter(sector_keys, sector_values)
+# ax[0][1].scatter()
 plt.xlabel('Sektory', labelpad=15)
 plt.ylabel('Początek danych')
 plt.xticks(rotation=90)
@@ -187,4 +222,3 @@ plt.show()
 
 et = time.time()
 print(et - st)
-
