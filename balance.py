@@ -94,5 +94,5 @@ class Period:
             month = quarter_dic[4][0]
             day = quarter_dic[4][1]
         col_name = '{year}-{month}-{day}'.format(year=year, month=month, day=day)
-        res = self.df[col_name]
+        res = float(self.df[col_name])
         return res
