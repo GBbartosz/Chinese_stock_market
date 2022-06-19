@@ -5,6 +5,7 @@ import time
 from preparedata import prepare_data, prepare_classes
 import functions as f
 from verifydata import verify_data
+import calculations
 
 
 def first_date_data_consolidate(first_date_by_sector_collection_dic):
@@ -63,26 +64,24 @@ if __name__ == '__main__':
         # print(incst.WeightedAverageDilutedSharesOut.period(2021, 4))
         first_date = first_date_by_company_dic[company]
 
-        capitalizations = {}
-        dates_l = f.get_following_dates_list(first_date)
-        for date in dates_l:
-            year = date[0]
-            quarter = date[1]
-            date = str(year) + '-' + str(quarter)
-            capitalization = incst.WeightedAverageDilutedSharesOut.period(year, quarter) * price.close.period(year, quarter)
-            capitalizations[date] = capitalization
-        print('Price {} - year({}), quarter({}): {}'.format(company, year, quarter, str(price.close.period(year, quarter))))
-        capitalization_dict[company] = capitalizations
+        #company_capitalization_dict = calculations.get_company_capitalization_by_date_dict(first_date, incst, price)
+        #print('Price {} - year({}), quarter({}): {}'.format(company, year, quarter, str(price.close.period(year, quarter))))
+        #capitalization_dict[company] = company_capitalization_dict
 
-    print(capitalization_dict)
+
+
+
+
+    #print(capitalization_dict)
+
+    fig, axs = plt.subplots(1, 1)
+
+
+
+
     sector_keys, sector_values = first_date_data_consolidate(first_date_by_sector_collection_dic)
-
     xticks_loc = range(len(sector_keys))
-    fig, ax = plt.subplots()
-    ax.scatter(sector_keys, sector_values)
-    # fig, ax = plt.subplots(1,2)
-    # ax[0][0].scatter(sector_keys, sector_values)
-    # ax[0][1].scatter()
+    axs.scatter(sector_keys, sector_values)
     plt.xlabel('Sektory', labelpad=15)
     plt.ylabel('Początek danych')
     plt.xticks(rotation=90)

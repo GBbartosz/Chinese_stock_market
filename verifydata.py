@@ -1,4 +1,5 @@
 import datetime
+import io
 import os
 import pandas as pd
 import functions as f
@@ -88,16 +89,18 @@ def create_doc_dfs(company, companys_dictionary, directory_path):
     return incst_df, b_df, cf_df
 
 
-def create_price_df(company):
-    price_file_name = 'C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\China_stock_data\\price\\{} price.csv'.format(company)
-    price_df = pd.read_csv(price_file_name).iloc[:, 1:]
+def create_price_df(yfticker):
+    price_file_name = r'C:\Users\Bartek\Desktop\ALK praca magisterska\China_stock_data\price longer hkd\{}_price.csv'.format(yfticker)
+    price_df = pd.read_csv(price_file_name)
     return price_df
 
 
 def verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_dic):
+    #print(company)
     incst_df, b_df, cf_df = create_doc_dfs(company, companys_dictionary, directory_path)
+
     sector, yf_ticker = companys_sector_dic[company]
-    price_df = create_price_df(company)
+    price_df = create_price_df(yf_ticker)
     incst_dates, b_dates, cf_dates, price_dates = create_docs_and_price_date_lists(incst_df, b_df, cf_df, price_df)
 
     if compability_price_and_docs_dates([incst_dates, b_dates, cf_dates, price_dates]) is False:
