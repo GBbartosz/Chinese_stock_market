@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 import functions as f
 from incomestatement import IncomeStatement
@@ -36,9 +37,11 @@ def reorganize_price_df(df, doc_dates):
     return df
 
 
-def prepare_data(incst_df, b_df, cf_df, price_df, doc_first_date):
+def prepare_data(incst_df, b_df, cf_df, price_df, doc_first_date, min_date):
     incst_df, b_df, cf_df, doc_dates_list = reorganize_doc_dfs(incst_df, b_df, cf_df, doc_first_date)
     price_df = reorganize_price_df(price_df, doc_dates_list)
+    dfs = [incst_df, b_df, cf_df, price_df]
+    incst_df, b_df, cf_df, price_df = prepare_dfs_to_common_timeline(dfs, min_date)
     return incst_df, b_df, cf_df, price_df
 
 
@@ -48,3 +51,16 @@ def prepare_classes(incst_df, b_df, cf_df, price_df):
     cf = CashFlow(cf_df)
     price = Price(price_df)
     return incst, b, cf, price
+
+
+def prepare_dfs_to_common_timeline(dfs, min_date):
+    rng = range(len(dfs))
+    for i, df in zip(rng, dfs):
+        for col in df.columns:
+            if col != 'Positions':
+                col_date = datetime.datetime.strptime(col, '%Y-%m-%d').date()
+                if col_date < min_date:
+                    df.drop(col, axis=1, inplace=True)
+        dfs[i] = df
+    incst_df, b_df, cf_df, price_df = dfs
+    return incst_df, b_df, cf_df, price_df

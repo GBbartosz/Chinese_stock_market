@@ -95,8 +95,7 @@ def create_price_df(yfticker):
     return price_df
 
 
-def verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_dic):
-    #print(company)
+def verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_dic, min_date):
     incst_df, b_df, cf_df = create_doc_dfs(company, companys_dictionary, directory_path)
 
     sector, yf_ticker = companys_sector_dic[company]
@@ -111,6 +110,10 @@ def verify_data(company, companys_dictionary, companys_sector_dic, directory_pat
 
     if compare_doc_dates(incst_df, b_df, cf_df) is False:
         print('Dates in docs are not equal for {}'.format(company))
+        return None
+
+    if doc_first_date > min_date or price_first_date > min_date:
+        print('Date greater than min_date for {}'.format(company))
         return None
 
     first_date_by_company_dic[company] = [doc_first_date, price_first_date]

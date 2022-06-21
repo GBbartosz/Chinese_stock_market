@@ -73,8 +73,8 @@ def find_nearest_price_date(f_d_d, price_dates_list):
 
 
 def get_following_dates_list(first_date):
-    year = first_date[0].year
-    month = first_date[0].month
+    year = first_date.year
+    month = first_date.month
     quarter = None
     if month == 3:
         quarter = 1
@@ -88,10 +88,26 @@ def get_following_dates_list(first_date):
         ValueError('Month out of [3, 6, 9, 12]')
     dates_l = []
     while year != 2022:
-        while quarter != 4:
+        while quarter != 5:
             yq = [year, quarter]
             dates_l.append(yq)
             quarter += 1
         year += 1
         quarter = 1
     return dates_l
+
+
+def create_dictionaries_of_sectors_with_lists(sectors_l, *args):
+    for arg in args:
+        for sector in sectors_l:
+            arg[sector] = []
+    return args
+
+
+def add_new_dict_to_sector_dict_list(main_dict, new_dict, k):
+    tmp_sector_dict_list = main_dict[k]
+    tmp_sector_dict_list.append(new_dict)
+    main_dict[k] = tmp_sector_dict_list
+    return main_dict
+
+

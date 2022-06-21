@@ -9,9 +9,9 @@ def get_number_of_companies_in_sector_by_date():
     return
 
 
-def get_company_capitalization_by_date_dict(first_date, incst, price):
+def get_company_capitalization_by_date_dict(min_date, incst, price):
     company_capitalization_dict = {}
-    dates_l = f.get_following_dates_list(first_date)
+    dates_l = f.get_following_dates_list(min_date)
     for date in dates_l:
         year = date[0]
         quarter = date[1]
@@ -19,4 +19,3 @@ def get_company_capitalization_by_date_dict(first_date, incst, price):
         capitalization = incst.WeightedAverageDilutedSharesOut.period(year, quarter) * price.close.period(year, quarter)
         company_capitalization_dict[date] = capitalization
     return company_capitalization_dict
-
