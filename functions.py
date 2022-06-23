@@ -105,6 +105,25 @@ def create_dictionaries_of_sectors_with_lists(sectors_l, *args):
     return args
 
 
+def create_dictionaries_of_sectors_with_dicts(sectors_l, *args):
+    for arg in args:
+        for sector in sectors_l:
+            arg[sector] = {}
+    return args
+
+
+def add_lack_of_data_instance(out_dict, sector, my_date):
+    inner_dict = out_dict[sector]
+    if my_date in inner_dict.keys():
+        inner_dict[my_date] += 1
+    else:
+        for d in out_dict.keys():
+            tmp_dict = out_dict[d]
+            tmp_dict[my_date] = 0
+        inner_dict[my_date] = 1
+    return out_dict
+
+
 def add_new_dict_to_sector_dict_list(main_dict, new_dict, k):
     tmp_sector_dict_list = main_dict[k]
     tmp_sector_dict_list.append(new_dict)
@@ -160,5 +179,13 @@ def key_error_handler(self, year, month, day):
     return res
 
 
+def get_missed_companies_due_to_min_date(late_first, f_name):
+    #for k in late_first.keys():
+    #    late_first[k] = [late_first[k]]
+    late_first_df = pd.DataFrame(late_first)
+    #late_first_df = late_first_df.reindex(sorted(late_first_df.columns), axis=1)
+    fold = 'C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\'
+    path = fold + f_name
+    late_first_df.to_excel(path)
 
 

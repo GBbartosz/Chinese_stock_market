@@ -1,12 +1,7 @@
 import functions as f
 
 
-def get_number_of_companies_in_sector_by_date():
-    companies_in_sector_dict = {}
-    for sector in sector_companys_dic.keys():
-        companies_in_sector = len(sector_companys_dic[sector])
-        companies_in_sector_dict[sector] = companies_in_sector
-    return
+
 
 
 #def get_company_capitalization_by_date_dict(min_date, incst, price):
@@ -70,3 +65,21 @@ def revenue_change_calc(dates_obj, incst):
         prev_year, prev_quarter = f.get_prev_year_quarter(year, quarter, 1)
         revenue_change = incst.Revenue.period(year, quarter) / incst.Revenue.period(prev_year, prev_quarter) - 1
         return revenue_change
+
+
+@f.fulfill_dict
+def net_income_calc(dates_obj, incst):
+    year, quarter, date, min_date, attempt = dates_obj
+    net_income = incst.NetIncometoCompany.period(year, quarter)
+    return net_income
+
+
+@f.fulfill_dict
+def net_income_change_calc(dates_obj, incst):
+    year, quarter, date, min_date, attempt = dates_obj
+    if attempt >= 1:
+        prev_year, prev_quarter = f.get_prev_year_quarter(year, quarter, 1)
+        net_income_change = incst.NetIncometoCompany.period(year, quarter) / incst.NetIncometoCompany.period(prev_year, prev_quarter) - 1
+        return net_income_change
+    
+    

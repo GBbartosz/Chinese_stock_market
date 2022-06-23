@@ -95,7 +95,7 @@ def create_price_df(yfticker):
     return price_df
 
 
-def verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_dic, min_date, number_of_periods, late_first_dates):
+def verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_dic, min_date, number_of_periods, late_first_sector_all, late_first_sector_doc, late_first_sector_price):
     incst_df, b_df, cf_df = create_doc_dfs(company, companys_dictionary, directory_path)
 
     sector, yf_ticker = companys_sector_dic[company]
@@ -112,12 +112,36 @@ def verify_data(company, companys_dictionary, companys_sector_dic, directory_pat
         print('Dates in docs are not equal for {}'.format(company))
         return None
 
-    if doc_first_date > min_date or price_first_date > min_date:
+    incst_first_date = datetime.datetime.strptime(incst_df.columns[1], '%Y-%m-%d').date()
+    b_first_date = datetime.datetime.strptime(b_df.columns[1], '%Y-%m-%d').date()
+    cf_first_date = datetime.datetime.strptime(cf_df.columns[1], '%Y-%m-%d').date()
+    f_d_d = max(incst_first_date, b_first_date, cf_first_date)
+    price_dates_list = list(datetime.datetime.strptime(p, '%Y-%m-%d').date() for p in price_df['Date'].values)
+    f_price_date = min(price_dates_list)
+
+    if f_d_d > min_date and f_price_date > min_date:
         str_doc_first_date = str(doc_first_date)
-        if str_doc_first_date in late_first_dates.keys():
-            late_first_dates[str_doc_first_date] += 1
-        else:
-            late_first_dates[str_doc_first_date] = 1
+        late_first_sector_all = f.add_lack_of_data_instance(late_first_sector_all, sector, str_doc_first_date)
+        print('First date {} is greater than min_date for {}'.format(str_doc_first_date, company))
+        print(f_d_d, f_price_date)
+        return None
+
+    if f_d_d > min_date:
+        str_doc_first_date = str(doc_first_date)
+        late_first_sector_doc = f.add_lack_of_data_instance(late_first_sector_doc, sector, str_doc_first_date)
+        print('First date {} is greater than min_date for {}'.format(str_doc_first_date, company))
+        print(f_d_d, f_price_date)
+        return None
+
+    if f_price_date > min_date:
+        str_doc_first_date = str(price_first_date)
+        late_first_sector_price = f.add_lack_of_data_instance(late_first_sector_price, sector, str_doc_first_date)
+        print('First date {} is greater than min_date for {}'.format(str_doc_first_date, company))
+        print(f_d_d, f_price_date)
+        return None
+
+    if doc_first_date > min_date:
+        str_doc_first_date = str(doc_first_date)
         print('First date {} is greater than min_date for {}'.format(str_doc_first_date, company))
         return None
 
@@ -136,5 +160,5 @@ def verify_data(company, companys_dictionary, companys_sector_dic, directory_pat
     first_date_by_company_dic[company] = [doc_first_date, price_first_date]
     first_date_by_sector_collection_dic = first_date_data_collect(doc_first_date, sector, first_date_by_sector_dic)
     dfs = incst_df, b_df, cf_df, price_df
-    return dfs, first_date_by_sector_collection_dic, first_date_by_company_dic, late_first_dates
+    return dfs, first_date_by_sector_collection_dic, first_date_by_company_dic, late_first_sector_all, late_first_sector_doc, late_first_sector_price
 
