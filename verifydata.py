@@ -95,7 +95,7 @@ def create_price_df(yfticker):
     return price_df
 
 
-def verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_dic, min_date):
+def verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_dic, min_date, number_of_periods, late_first_dates):
     incst_df, b_df, cf_df = create_doc_dfs(company, companys_dictionary, directory_path)
 
     sector, yf_ticker = companys_sector_dic[company]
@@ -113,11 +113,28 @@ def verify_data(company, companys_dictionary, companys_sector_dic, directory_pat
         return None
 
     if doc_first_date > min_date or price_first_date > min_date:
-        print('Date greater than min_date for {}'.format(company))
+        str_doc_first_date = str(doc_first_date)
+        if str_doc_first_date in late_first_dates.keys():
+            late_first_dates[str_doc_first_date] += 1
+        else:
+            late_first_dates[str_doc_first_date] = 1
+        print('First date {} is greater than min_date for {}'.format(str_doc_first_date, company))
         return None
+
+    last_date = datetime.date(year=2022, month=1, day=2)
+    for d in [incst_dates, b_dates, cf_dates]:
+        tmp_date_l = []
+        for x in d:
+            x_date = datetime.datetime.strptime(x, '%Y-%m-%d').date()
+            if min_date <= x_date < last_date:
+                tmp_date_l.append(x)
+        fil_number_of_periods = len(tmp_date_l)
+        if fil_number_of_periods != number_of_periods:
+            print('Not all periods available ({}) for {}'.format(fil_number_of_periods, company))
+            return None
 
     first_date_by_company_dic[company] = [doc_first_date, price_first_date]
     first_date_by_sector_collection_dic = first_date_data_collect(doc_first_date, sector, first_date_by_sector_dic)
     dfs = incst_df, b_df, cf_df, price_df
-    return dfs, first_date_by_sector_collection_dic, first_date_by_company_dic
+    return dfs, first_date_by_sector_collection_dic, first_date_by_company_dic, late_first_dates
 

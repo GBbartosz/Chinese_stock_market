@@ -1,3 +1,7 @@
+import datetime
+from functions import key_error_handler
+
+
 class Price:
     def __init__(self, df):
         self.open = None
@@ -31,6 +35,5 @@ class Period:
         elif quarter == 4:
             month = quarter_dic[4][0]
             day = quarter_dic[4][1]
-        ind = '{year}-{month}-{day}'.format(year=year, month=month, day=day)
-        res = float(self.df.loc[ind])
+        res = key_error_handler(self, year, month, day)
         return res

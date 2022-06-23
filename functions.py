@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime
 
 
 def dataframe_display_options():
@@ -109,5 +110,55 @@ def add_new_dict_to_sector_dict_list(main_dict, new_dict, k):
     tmp_sector_dict_list.append(new_dict)
     main_dict[k] = tmp_sector_dict_list
     return main_dict
+
+
+def fulfill_dict(equation):
+    def inner(min_date, *args):
+        tmp_dict = {}
+        dates_l = get_following_dates_list(min_date)
+        attempt = 0
+        for date in dates_l:
+            year = date[0]
+            quarter = date[1]
+            date = str(year) + '-' + str(quarter)
+            dates_obj = [year, quarter, date, min_date, attempt]
+            res = equation(dates_obj, *args)
+            if res is not None:
+                tmp_dict[date] = res
+            attempt += 1
+        return tmp_dict
+    return inner
+
+
+def get_prev_year_quarter(year, quarter, back):
+    quarters = 4
+    prev_quarter = quarter - back
+    prev_year = year
+    while prev_quarter < 1:
+        prev_quarter += quarters
+        prev_year -= 1
+    return prev_year, prev_quarter
+
+
+def key_error_handler(self, year, month, day):
+    try:
+        col_name = '{year}-{month}-{day}'.format(year=year, month=month, day=day)
+        res = float(self.df[col_name])
+    except KeyError:
+        try:
+            col_name = '{year}-{month}-{day}'.format(year=year, month=month, day=day)
+            col_name = datetime.datetime.strptime(col_name, '%Y-%m-%d').date()
+            col_name = col_name + datetime.timedelta(days=1)
+            col_name = str(col_name)
+            res = float(self.df[col_name])
+        except KeyError:
+            col_name = '{year}-{month}-{day}'.format(year=year, month=month, day=day)
+            col_name = datetime.datetime.strptime(col_name, '%Y-%m-%d').date()
+            col_name = col_name - datetime.timedelta(days=1)
+            col_name = str(col_name)
+            res = float(self.df[col_name])
+    return res
+
+
 
 
