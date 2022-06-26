@@ -168,7 +168,7 @@ def get_missed_companies_due_to_min_date(late_first, f_name):
     #    late_first[k] = [late_first[k]]
     late_first_df = pd.DataFrame(late_first)
     #late_first_df = late_first_df.reindex(sorted(late_first_df.columns), axis=1)
-    fold = 'C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\'
+    fold = 'C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\lack_of_data_cause\\'
     path = fold + f_name
     late_first_df.to_excel(path)
 
@@ -208,7 +208,7 @@ def create_companies_in_sector_dict(sectors_l):
     return companies_in_sector_dict
 
 
-def companies_in_sector_dict_to_file(my_dict):
+def equalize_dict_lists_and_to_file(my_dict, f_name):
     k = max(my_dict, key=lambda k: len(my_dict[k]))
     max_length = len(my_dict[k])
     for k in my_dict.keys():
@@ -217,5 +217,6 @@ def companies_in_sector_dict_to_file(my_dict):
         equalizer_data = difference * [0]
         my_dict[k] = my_dict[k] + equalizer_data
     df = pd.DataFrame(my_dict)
-    path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data\companies_in_sector.xlsx'
+    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
+    path = os.path.join(fold_path, f_name)
     df.to_excel(path)

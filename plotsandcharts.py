@@ -98,7 +98,7 @@ def sector_bar_chart(sectors_l, sector_dict, title, my_calc_type):
     f_name = title + '.png'
     path = os.path.join(fold_path, f_name)
     plt.savefig(path)
-    plt.show()
+    #plt.show()
     return sector_combined_dict, title, x_labels
 
 

@@ -90,12 +90,17 @@ def create_doc_dfs(company, companys_dictionary, directory_path):
 
 
 def create_price_df(yfticker):
-    price_file_name = r'C:\Users\Bartek\Desktop\ALK praca magisterska\China_stock_data\price longer hkd\{}_price.csv'.format(yfticker)
+    price_file_name = r'C:\Users\Bartek\Desktop\ALK praca magisterska\China_stock_data\price longer after calc cny\{}_price.csv'.format(yfticker)
     price_df = pd.read_csv(price_file_name)
     return price_df
 
 
-def verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_dic, min_date, number_of_periods, late_first_sector_all, late_first_sector_doc, late_first_sector_price):
+def verify_data(company, companys_dictionary, companys_sector_dic, directory_path,
+                first_date_by_company_dic, first_date_by_sector_dic,
+                min_date, number_of_periods,
+                late_first_sector_all, late_first_sector_doc, late_first_sector_price,
+                price_docs_date_not_compatible_sector_dict, doc_dates_not_equal_dict):
+
     incst_df, b_df, cf_df = create_doc_dfs(company, companys_dictionary, directory_path)
 
     sector, yf_ticker = companys_sector_dic[company]
@@ -103,12 +108,14 @@ def verify_data(company, companys_dictionary, companys_sector_dic, directory_pat
     incst_dates, b_dates, cf_dates, price_dates = create_docs_and_price_date_lists(incst_df, b_df, cf_df, price_df)
 
     if compability_price_and_docs_dates([incst_dates, b_dates, cf_dates, price_dates]) is False:
+        price_docs_date_not_compatible_sector_dict[sector] = price_docs_date_not_compatible_sector_dict[sector] + [company]
         print('{}: dates are not compatible'.format(company))
         return None
 
     doc_first_date, price_first_date = find_first_date(incst_df, b_df, cf_df, price_df)
 
     if compare_doc_dates(incst_df, b_df, cf_df) is False:
+        doc_dates_not_equal_dict[sector] = doc_dates_not_equal_dict[sector] + [company]
         print('Dates in docs are not equal for {}'.format(company))
         return None
 
@@ -160,5 +167,5 @@ def verify_data(company, companys_dictionary, companys_sector_dic, directory_pat
     first_date_by_company_dic[company] = [doc_first_date, price_first_date]
     first_date_by_sector_collection_dic = first_date_data_collect(doc_first_date, sector, first_date_by_sector_dic)
     dfs = incst_df, b_df, cf_df, price_df
-    return dfs, first_date_by_sector_collection_dic, first_date_by_company_dic, late_first_sector_all, late_first_sector_doc, late_first_sector_price
+    return dfs, first_date_by_sector_collection_dic, first_date_by_company_dic, late_first_sector_all, late_first_sector_doc, late_first_sector_price, price_docs_date_not_compatible_sector_dict, doc_dates_not_equal_dict
 

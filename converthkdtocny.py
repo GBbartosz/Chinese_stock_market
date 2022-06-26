@@ -42,4 +42,4 @@ if __name__ == '__main__':
                     hkd = df[col][i]
                     df.loc[i, col] = exchange(hkd, i_date, convert_df)
         destination_path = os.path.join(destination_fold, f_name)
-        df.to_csv(destination_path)
+        df.to_csv(destination_path, index=False)

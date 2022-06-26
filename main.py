@@ -42,20 +42,22 @@ if __name__ == '__main__':
     late_first_sector_all = {}
     late_first_sector_doc = {}
     late_first_sector_price = {}
-
     res = f.create_dictionaries_of_sectors_with_dicts(sectors_l, late_first_sector_all, late_first_sector_doc, late_first_sector_price)
     late_first_sector_all, late_first_sector_doc, late_first_sector_price = res
+
+    price_docs_date_not_compatible_sector_dict = f.create_companies_in_sector_dict(sectors_l)
+    doc_dates_not_equal_dict = f.create_companies_in_sector_dict(sectors_l)
 
     verified_companies = {}
     first_date_by_company_dic = {}
     first_date_by_sector_collection_dic = {}
 
     for company in companys_dictionary.keys():
-        verified_data_result = verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_collection_dic, min_date, number_of_periods, late_first_sector_all, late_first_sector_doc, late_first_sector_price)
+        verified_data_result = verify_data(company, companys_dictionary, companys_sector_dic, directory_path, first_date_by_company_dic, first_date_by_sector_collection_dic, min_date, number_of_periods, late_first_sector_all, late_first_sector_doc, late_first_sector_price, price_docs_date_not_compatible_sector_dict, doc_dates_not_equal_dict)
         if verified_data_result is None:
             continue
         else:
-            dfs, first_date_by_sector_collection_dic, first_date_by_company_dic, late_first_sector_all, late_first_sector_doc, late_first_sector_price = verified_data_result
+            dfs, first_date_by_sector_collection_dic, first_date_by_company_dic, late_first_sector_all, late_first_sector_doc, late_first_sector_price, price_docs_date_not_compatible_sector_dict, doc_dates_not_equal_dict = verified_data_result
             verified_companies[company] = dfs
 
     sector_capitalization_dict = {}
@@ -68,8 +70,8 @@ if __name__ == '__main__':
     sector_pb_ratio = {}
     sector_price_change = {}
     dicts_l = [sector_capitalization_dict, sector_pe_ratio_dict, sector_ps_ratio_dict, sector_revenue_dict, sector_revenue_change_dict, sector_net_income_dict, sector_net_income_change_dict, sector_pb_ratio, sector_price_change]
-    res = f.create_dictionaries_of_sectors_with_lists(sectors_l, dicts_l)
-    sector_capitalization_dict, sector_pe_ratio_dict, sector_ps_ratio_dict, sector_revenue_dict, sector_revenue_change_dict, sector_net_income_dict, sector_net_income_change_dict, sector_pb_ratio, sector_price_change = res
+    res_sectors_dicts = f.create_dictionaries_of_sectors_with_lists(sectors_l, dicts_l)
+    sector_capitalization_dict, sector_pe_ratio_dict, sector_ps_ratio_dict, sector_revenue_dict, sector_revenue_change_dict, sector_net_income_dict, sector_net_income_change_dict, sector_pb_ratio, sector_price_change = res_sectors_dicts
 
     companies_in_sector_dict = f.create_companies_in_sector_dict(sectors_l)
     number_of_companies_in_sector = {}
@@ -88,10 +90,9 @@ if __name__ == '__main__':
         doc_first_date, price_first_date = first_date_by_company_dic[company]
         incst_df, b_df, cf_df, price_df = prepare_data(incst_df, b_df, cf_df, price_df, doc_first_date, min_date)
         incst, b, cf, price = prepare_classes(incst_df, b_df, cf_df, price_df)
-    ############################################################################
         first_date = first_date_by_company_dic[company]
 
-        #company_capitalization_dict = calculations.get_company_capitalization_by_date_dict(min_date, incst, price)
+        # company_capitalization_dict = calculations.get_company_capitalization_by_date_dict(min_date, incst, price)
         company_capitalization_dict = calculations.capitalization_calc(min_date, incst, price)
         sector_capitalization_dict = f.add_new_dict_to_sector_dict_list(sector_capitalization_dict, company_capitalization_dict, sector)
 
@@ -117,11 +118,10 @@ if __name__ == '__main__':
         sector_pb_ratio = f.add_new_dict_to_sector_dict_list(sector_pb_ratio, company_pb_ratio, sector)
 
         company_price_change = calculations.price_change_calc(min_date, price)
-        sector_price_change= f.add_new_dict_to_sector_dict_list(sector_price_change, company_price_change, sector)
+        sector_price_change = f.add_new_dict_to_sector_dict_list(sector_price_change, company_price_change, sector)
 
         companies_in_sector_dict[sector] = companies_in_sector_dict[sector] + [company]
         number_of_companies_in_sector[sector] += 1
-
 
     plotsandcharts.sector_bar_chart(sectors_l, sector_capitalization_dict, 'Capitalization', 'sum')
     plotsandcharts.sector_bar_chart(sectors_l, sector_pe_ratio_dict, 'PE ratio', 'average')
@@ -134,13 +134,16 @@ if __name__ == '__main__':
     plotsandcharts.sector_bar_chart(sectors_l, sector_price_change, 'Price change', 'average')
     plotsandcharts.number_of_companies_in_sector_bar_chart(number_of_companies_in_sector)
 
-
-    f.companies_in_sector_dict_to_file(companies_in_sector_dict)
     for k in number_of_companies_in_sector.keys():
         number_of_companies_in_sector[k] = [number_of_companies_in_sector[k]]
     df = pd.DataFrame(number_of_companies_in_sector)
-    print(df)
+    df.to_excel(r'C:\Users\Bartek\Desktop\ALK praca magisterska\number_of_companies_in_sector.xlsx')
+
+    f.equalize_dict_lists_and_to_file(companies_in_sector_dict, 'companies_in_sector.xlsx')
     #lack of data excel reports
+    f.equalize_dict_lists_and_to_file(price_docs_date_not_compatible_sector_dict, 'lack_of_data_cause\price_docs_date_not_compatible.xlsx')
+    f.equalize_dict_lists_and_to_file(doc_dates_not_equal_dict, 'lack_of_data_cause\doc_dates_not_equal.xlsx')
+
     f.get_missed_companies_due_to_min_date(late_first_sector_all, 'late_first_sector_all.xlsx')
     f.get_missed_companies_due_to_min_date(late_first_sector_doc, 'late_first_sector_doc.xlsx')
     f.get_missed_companies_due_to_min_date(late_first_sector_price, 'late_first_sector_price.xlsx')
