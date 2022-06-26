@@ -1,5 +1,7 @@
+import os.path
 import pandas as pd
 import datetime
+
 
 
 def dataframe_display_options():
@@ -98,11 +100,11 @@ def get_following_dates_list(first_date):
     return dates_l
 
 
-def create_dictionaries_of_sectors_with_lists(sectors_l, *args):
-    for arg in args:
+def create_dictionaries_of_sectors_with_lists(sectors_l, my_l):
+    for arg in my_l:
         for sector in sectors_l:
             arg[sector] = []
-    return args
+    return my_l
 
 
 def create_dictionaries_of_sectors_with_dicts(sectors_l, *args):
@@ -129,24 +131,6 @@ def add_new_dict_to_sector_dict_list(main_dict, new_dict, k):
     tmp_sector_dict_list.append(new_dict)
     main_dict[k] = tmp_sector_dict_list
     return main_dict
-
-
-def fulfill_dict(equation):
-    def inner(min_date, *args):
-        tmp_dict = {}
-        dates_l = get_following_dates_list(min_date)
-        attempt = 0
-        for date in dates_l:
-            year = date[0]
-            quarter = date[1]
-            date = str(year) + '-' + str(quarter)
-            dates_obj = [year, quarter, date, min_date, attempt]
-            res = equation(dates_obj, *args)
-            if res is not None:
-                tmp_dict[date] = res
-            attempt += 1
-        return tmp_dict
-    return inner
 
 
 def get_prev_year_quarter(year, quarter, back):
@@ -189,3 +173,49 @@ def get_missed_companies_due_to_min_date(late_first, f_name):
     late_first_df.to_excel(path)
 
 
+#def dict_to_df_to_excel(my_dicts, f_names):
+#    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
+#    for my_dict, f_name in zip(my_dicts, f_names):
+#        df = pd.DataFrame(my_dict)
+#        path = os.path.join(fold_path, f_name)
+#        df.to_excel(path)
+
+
+def dict_to_df_to_excel(f):
+    def inner(sectors_l, sector_dict, title, my_calc_type):
+        sector_combined_dict, title, x_labels = f(sectors_l, sector_dict, title, my_calc_type)
+        fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
+        df = pd.DataFrame(sector_combined_dict, index=x_labels)
+        f_name = title + '.xlsx'
+        path = os.path.join(fold_path, f_name)
+        df.to_excel(path)
+        return None
+    return inner
+
+
+def remove_item_if_empty(my_dict):
+    for k in my_dict:
+        it = my_dict[k]
+        if len(it.keys()) == 0:
+            del my_dict[k]
+    return my_dict
+
+
+def create_companies_in_sector_dict(sectors_l):
+    companies_in_sector_dict = {}
+    for sector in sectors_l:
+        companies_in_sector_dict[sector] = []
+    return companies_in_sector_dict
+
+
+def companies_in_sector_dict_to_file(my_dict):
+    k = max(my_dict, key=lambda k: len(my_dict[k]))
+    max_length = len(my_dict[k])
+    for k in my_dict.keys():
+        length = len(my_dict[k])
+        difference = max_length - length
+        equalizer_data = difference * [0]
+        my_dict[k] = my_dict[k] + equalizer_data
+    df = pd.DataFrame(my_dict)
+    path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data\companies_in_sector.xlsx'
+    df.to_excel(path)

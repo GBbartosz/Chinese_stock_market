@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from collections import OrderedDict, Counter
 import numpy as np
 import time
+import functions as f
+import os
 
 
 def sort_inner_dictionary(my_dict):
@@ -54,7 +56,27 @@ def create_y(my_sector, my_dict, x_labels, my_calc_type):
     return my_y
 
 
+def sector_color(sector):
+    color_dict = {
+    'Communication Services': 'magenta',
+    'Industrials': 'grey',
+    'Utilities': 'black',
+    'Consumer Discretionary': 'darkgreen',
+    'Information Technology': 'aqua',
+    'Materials': 'indigo',
+    'Real Estate': 'saddlebrown',
+    'Healthcare': 'blue',
+    'Financials': 'gold',
+    'Energy': 'orange',
+    'Consumer Staples': 'springgreen'
+    }
+    color = color_dict[sector]
+    return color
+
+
+@f.dict_to_df_to_excel
 def sector_bar_chart(sectors_l, sector_dict, title, my_calc_type):
+    sector_combined_dict = {}
     x_labels = create_x_labels(sector_dict)
     x_axis = np.arange(len(x_labels), dtype=float)
     x_axis0 = x_axis
@@ -63,14 +85,21 @@ def sector_bar_chart(sectors_l, sector_dict, title, my_calc_type):
     width = 0.9 / len(sectors_l)
     for sector in sectors_l:
         ax = plt.subplot()
+        color = sector_color(sector)
         y = create_y(sector, sector_dict, x_labels, my_calc_type)
-        ax.bar(x_axis, y, width=width, label=sector, align='center')
+        ax.bar(x_axis, y, width=width, label=sector, align='center', color=color)
         x_axis += width
+        sector_combined_dict[sector] = y
     plt.xticks(x_axis0, x_labels, rotation=90)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.17), ncol=4, fancybox=True, shadow=True)
     plt.title(title, loc='left', pad=40)
     manager = plt.get_current_fig_manager().window.state('zoomed')
+    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts'
+    f_name = title + '.png'
+    path = os.path.join(fold_path, f_name)
+    plt.savefig(path)
     plt.show()
+    return sector_combined_dict, title, x_labels
 
 
 def number_of_companies_in_sector_bar_chart(number_of_companies_in_sector):
