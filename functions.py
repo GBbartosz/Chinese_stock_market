@@ -182,10 +182,13 @@ def get_missed_companies_due_to_min_date(late_first, f_name):
 
 
 def dict_to_df_to_excel(f):
-    def inner(sectors_l, sector_dict, title, my_calc_type):
-        sector_combined_dict, title, x_labels = f(sectors_l, sector_dict, title, my_calc_type)
+    def inner(sectors_l, sector_dict, title, my_calc_type, calculated_companies_l):
         fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
-        df = pd.DataFrame(sector_combined_dict, index=x_labels)
+        sector_combined_dict, title, x_labels = f(sectors_l, sector_dict, title, my_calc_type, calculated_companies_l)
+        if my_calc_type is None:
+            df = pd.DataFrame(sector_combined_dict, index=x_labels)
+        else:
+            df = pd.DataFrame(sector_combined_dict, index=x_labels)
         f_name = title + '.xlsx'
         path = os.path.join(fold_path, f_name)
         df.to_excel(path)
@@ -217,6 +220,6 @@ def equalize_dict_lists_and_to_file(my_dict, f_name):
         equalizer_data = difference * [0]
         my_dict[k] = my_dict[k] + equalizer_data
     df = pd.DataFrame(my_dict)
-    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
+    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\lack_of_data_cause'
     path = os.path.join(fold_path, f_name)
     df.to_excel(path)

@@ -54,12 +54,26 @@ def if_nan_find_prev_or_next(obj, year, quarter):
         res = obj(next_year1, next_quarter1)
     return res
 
+
 @fulfill_dict
 def capitalization_calc(dates_obj, incst, price):
     year, quarter, date, min_date, attempt = dates_obj
     shares_out = handling_empty_shares_out(incst, year, quarter)
     capitalization = shares_out * price.close.period(year, quarter)
     return capitalization
+
+
+@fulfill_dict
+def capitalization_change_calc(dates_obj, incst, price):
+    year, quarter, date, min_date, attempt = dates_obj
+    if attempt >= 1:
+        prev_year, prev_quarter = f.get_prev_year_quarter(year, quarter, 1)
+        current_shares_out = handling_empty_shares_out(incst, year, quarter)
+        current_capitalization = current_shares_out * price.close.period(year, quarter)
+        prev_shares_out = handling_empty_shares_out(incst, prev_year, prev_quarter)
+        prev_capitalization = prev_shares_out * price.close.period(prev_year, prev_quarter)
+        capitalization_change = current_capitalization / prev_capitalization
+        return capitalization_change
 
 
 @fulfill_dict
@@ -129,6 +143,13 @@ def price_to_book_ratio_calc(dates_obj, incst, b, price):
         total_equity = if_nan_find_prev_or_next(b.TotalEquity.period, year, quarter)
     pb_ratio = price.close.period(year, quarter) * shares_out / total_equity
     return pb_ratio
+
+
+@fulfill_dict
+def price_calc(dates_obj, price):
+    year, quarter, date, min_date, attempt = dates_obj
+    price = price.close.period(year, quarter)
+    return price
 
 
 @fulfill_dict

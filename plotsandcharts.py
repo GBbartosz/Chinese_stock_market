@@ -75,13 +75,13 @@ def sector_color(sector):
 
 
 @f.dict_to_df_to_excel
-def sector_bar_chart(sectors_l, sector_dict, title, my_calc_type):
+def sector_bar_chart(sectors_l, sector_dict, title, my_calc_type, calculated_companies_l):
     sector_combined_dict = {}
     x_labels = create_x_labels(sector_dict)
     x_axis = np.arange(len(x_labels), dtype=float)
     x_axis0 = x_axis
     x_axis = x_axis - 0.45
-    fig = plt.figure()
+    fig = plt.figure(figsize=(17, 11))
     width = 0.9 / len(sectors_l)
     for sector in sectors_l:
         ax = plt.subplot()
@@ -93,11 +93,12 @@ def sector_bar_chart(sectors_l, sector_dict, title, my_calc_type):
     plt.xticks(x_axis0, x_labels, rotation=90)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.17), ncol=4, fancybox=True, shadow=True)
     plt.title(title, loc='left', pad=40)
-    manager = plt.get_current_fig_manager().window.state('zoomed')
+    #manager = plt.get_current_fig_manager().window.state('zoomed')
     fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts'
     f_name = title + '.png'
     path = os.path.join(fold_path, f_name)
-    plt.savefig(path)
+    plt.savefig(path, dpi=300)
+    plt.close(fig)
     #plt.show()
     return sector_combined_dict, title, x_labels
 
@@ -112,4 +113,39 @@ def number_of_companies_in_sector_bar_chart(number_of_companies_in_sector):
     plt.show()
 
 
+@f.dict_to_df_to_excel
+def companies_in_sector_bar_chart(sector, sector_dict, title, my_calc_type, calculated_companies_in_sector_dict):
+    my_sector_l = sector_dict[sector]
+    x_labels = create_x_labels(sector_dict)
+    x_axis = np.arange(len(x_labels), dtype=float)
+    x_axis0 = x_axis
+    x_axis = x_axis - 0.45
+    fig = plt.figure(figsize=(17, 11))
+    width = 0.9 / len(my_sector_l)
+    ind = list(range(len(my_sector_l)))
+    calculated_companies_l = calculated_companies_in_sector_dict[sector]
+    sector_combined_dict = {}
+    for company, company_dict in zip(calculated_companies_l, my_sector_l):
+        ax = plt.subplot()
+        y = create_y_for_company(company_dict)
+        ax.bar(x_axis, y, width=width, label=company, align='center')
+        x_axis += width
+        sector_combined_dict[company] = y
+    plt.xticks(x_axis0, x_labels, rotation=90)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.17), ncol=4, fancybox=True, shadow=True)
+    plt.title(title, loc='left', pad=40)
+    manager = plt.get_current_fig_manager().window.state('zoomed')
+    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts\sectors\{}'.format(sector)
+    f_name = title + '.png'
+    path = os.path.join(fold_path, f_name)
+    plt.savefig(path, dpi=300)
+    plt.close(fig)
+    # plt.show()
+    return sector_combined_dict, title, x_labels
 
+
+def create_y_for_company(my_dict):
+    y = []
+    for val in my_dict.values():
+        y.append(val)
+    return y
