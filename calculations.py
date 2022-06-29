@@ -1,3 +1,5 @@
+import datetime
+
 import functions as f
 import math
 import numpy as np
@@ -39,9 +41,13 @@ def handling_empty_shares_out(incst, year, quarter):
             try:
                 prev_year1, prev_quarter1 = f.get_prev_year_quarter(year, quarter, 1)
                 shares_out = incst.WeightedAverageDilutedSharesOut.period(prev_year1, prev_quarter1)
+                if np.isnan(shares_out):
+                    next_year1, next_quarter1 = f.get_prev_year_quarter(year, quarter, -1)
+                    shares_out = incst.WeightedAverageDilutedSharesOut.period(next_year1, next_quarter1)
             except KeyError:
                 next_year1, next_quarter1 = f.get_prev_year_quarter(year, quarter, -1)
                 shares_out = incst.WeightedAverageDilutedSharesOut.period(next_year1, next_quarter1)
+
     return shares_out
 
 
@@ -72,7 +78,7 @@ def capitalization_change_calc(dates_obj, incst, price):
         current_capitalization = current_shares_out * price.close.period(year, quarter)
         prev_shares_out = handling_empty_shares_out(incst, prev_year, prev_quarter)
         prev_capitalization = prev_shares_out * price.close.period(prev_year, prev_quarter)
-        capitalization_change = current_capitalization / prev_capitalization
+        capitalization_change = current_capitalization / prev_capitalization - 1
         return capitalization_change
 
 
@@ -161,3 +167,56 @@ def price_change_calc(dates_obj, price):
         return price_change
 
 
+def create_close_price_volatility_for_comp_dict(close_price_in_sector_dict):
+    def average(my_l):
+        my_average = sum(my_l) / len(my_l)
+        return my_average
+
+    def convert_to_date(x):
+        x = datetime.datetime.strptime(x, '%Y-%m-%d').date()
+        return x
+
+    outer_standard_deviation_dict = {}
+    for sec in close_price_in_sector_dict.keys():
+        outer_standard_deviation_dict[sec] = {}
+        close_price_sec_dict = close_price_in_sector_dict[sec]
+        for comp in close_price_sec_dict.keys():
+            df = close_price_sec_dict[comp]
+            border_date = datetime.date(year=2020, month=1, day=1)
+            df['Date'] = df['Date'].apply(convert_to_date)
+            df_bef = df[df['Date'] < border_date]
+            df_aft = df[df['Date'] >= border_date]
+            dfs = df_bef, df_aft
+            standard_deviations = []
+            for df in dfs:
+                vls = list(df['Close'])
+                comp_avg = average(vls)
+                comp_deviations_l = []
+                for cl_price in vls:
+                    this_deviation = cl_price - comp_avg
+                    comp_deviations_l.append(this_deviation)
+                comp_deviations = np.array(comp_deviations_l)
+                comp_squared_deviations = comp_deviations ** 2
+                comp_squared_deviations_sum = np.sum(comp_squared_deviations)
+                variance = comp_squared_deviations_sum / len(vls)
+                standard_deviation = np.sqrt(variance)
+                standard_deviations.append(standard_deviation)
+            outer_standard_deviation_dict[sec][comp] = standard_deviations
+    return outer_standard_deviation_dict
+
+
+def create_close_price_volatility_for_sector_dict(outer_standard_deviation_dict):
+    sectors_standard_deviation_dict = {}
+    for sec in outer_standard_deviation_dict.keys():
+        sec_volatility_dict = outer_standard_deviation_dict[sec]
+        total_sec_std_dev_aft = 0
+        total_sec_std_dev_bef = 0
+        number_of_companies_in_sector = len(sec_volatility_dict.keys())
+        for comp in sec_volatility_dict.keys():
+            bef_std_dev, aft_std_dev = sec_volatility_dict[comp]
+            total_sec_std_dev_bef += bef_std_dev
+            total_sec_std_dev_aft += aft_std_dev
+        total_sec_std_dev_bef = total_sec_std_dev_bef / number_of_companies_in_sector
+        total_sec_std_dev_aft = total_sec_std_dev_aft / number_of_companies_in_sector
+        sectors_standard_deviation_dict[sec] = [total_sec_std_dev_bef, total_sec_std_dev_aft]
+    return sectors_standard_deviation_dict

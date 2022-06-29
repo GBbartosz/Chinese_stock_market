@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 from collections import OrderedDict, Counter
 import numpy as np
 import time
+
+import pandas as pd
+
 import functions as f
 import os
 
@@ -81,7 +84,7 @@ def sector_bar_chart(sectors_l, sector_dict, title, my_calc_type, calculated_com
     x_axis = np.arange(len(x_labels), dtype=float)
     x_axis0 = x_axis
     x_axis = x_axis - 0.45
-    fig = plt.figure(figsize=(17, 11))
+    fig = plt.figure(figsize=(19, 12))
     width = 0.9 / len(sectors_l)
     for sector in sectors_l:
         ax = plt.subplot()
@@ -91,7 +94,7 @@ def sector_bar_chart(sectors_l, sector_dict, title, my_calc_type, calculated_com
         x_axis += width
         sector_combined_dict[sector] = y
     plt.xticks(x_axis0, x_labels, rotation=90)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.17), ncol=4, fancybox=True, shadow=True)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=4, fancybox=True, shadow=True)
     plt.title(title, loc='left', pad=40)
     #manager = plt.get_current_fig_manager().window.state('zoomed')
     fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts'
@@ -120,10 +123,11 @@ def companies_in_sector_bar_chart(sector, sector_dict, title, my_calc_type, calc
     x_axis = np.arange(len(x_labels), dtype=float)
     x_axis0 = x_axis
     x_axis = x_axis - 0.45
-    fig = plt.figure(figsize=(17, 11))
+    fig = plt.figure(figsize=(19, 12))
     width = 0.9 / len(my_sector_l)
     ind = list(range(len(my_sector_l)))
     calculated_companies_l = calculated_companies_in_sector_dict[sector]
+    title = sector + '_' + title
     sector_combined_dict = {}
     for company, company_dict in zip(calculated_companies_l, my_sector_l):
         ax = plt.subplot()
@@ -141,6 +145,7 @@ def companies_in_sector_bar_chart(sector, sector_dict, title, my_calc_type, calc
     plt.savefig(path, dpi=300)
     plt.close(fig)
     # plt.show()
+
     return sector_combined_dict, title, x_labels
 
 
@@ -149,3 +154,80 @@ def create_y_for_company(my_dict):
     for val in my_dict.values():
         y.append(val)
     return y
+
+
+def standard_deviation_bef_aft_bar_chart_for_sec(sectors_standard_deviation_dict):
+    sectors_l = sectors_standard_deviation_dict.keys()
+    x_labels = ['Before 01.01.2020', 'After 01.01.2020']
+    x_axis = np.arange(len(x_labels), dtype=float)
+    x_axis0 = x_axis
+    x_axis = x_axis - 0.45
+    fig = plt.figure(figsize=(19, 12))
+    width = 0.9 / len(sectors_l)
+    sector_combined_dict = {}
+    print('for sectors')
+    for sector in sectors_l:
+        ax = plt.subplot()
+        color = sector_color(sector)
+        y = sectors_standard_deviation_dict[sector]
+        ax.bar(x_axis, y, width=width, label=sector, align='center', color=color)
+        print(x_axis)
+        x_axis += width
+        sector_combined_dict[sector] = y
+    plt.xticks(x_axis0, x_labels)
+    print(x_axis0)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=4, fancybox=True, shadow=True)
+    title = 'sectors standard deviation'
+    plt.title(title, loc='left', pad=40)
+    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts'
+    f_name = title + '.png'
+    path = os.path.join(fold_path, f_name)
+    plt.savefig(path, dpi=300)
+    plt.close(fig)
+    #plt.show()
+    df = pd.DataFrame(sector_combined_dict)
+    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
+    f_name = title + '.xlsx'
+    path = os.path.join(fold_path, f_name)
+    df.to_excel(path)
+
+
+def standard_deviation_bef_aft_bar_chart_for_comps_in_sec(comp_standard_deviation_dict):
+    sectors_l = comp_standard_deviation_dict.keys()
+    for sector in sectors_l:
+        comps_dict = comp_standard_deviation_dict[sector]
+        x_labels = ['Before 01.01.2020', 'After 01.01.2020']
+        x_axis = np.arange(len(x_labels), dtype=float)
+        x_axis0 = x_axis
+        x_axis = x_axis - 0.45
+        fig = plt.figure(figsize=(19, 12))
+        comps_l = comps_dict.keys()
+        width = 0.9 / len(comps_l)
+        title = sector + '_standard_deviation'
+        sector_combined_dict = {}
+        print('for comps')
+        for comp in comps_dict.keys():
+            ax = plt.subplot()
+            y = comp_standard_deviation_dict[sector][comp]
+            ax.bar(x_axis, y, width=width, label=comp, align='center')
+            print(x_axis)
+            x_axis += width
+            sector_combined_dict[comp] = y
+        plt.xticks(x_axis0, x_labels)
+        print(x_axis0)
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.13), ncol=4, fancybox=True, shadow=True)
+        plt.title(title, loc='left', pad=40)
+        fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts\sectors\{}'.format(sector)
+        f_name = title + '.png'
+        path = os.path.join(fold_path, f_name)
+        plt.savefig(path, dpi=300)
+        plt.close(fig)
+        #plt.show()
+        df = pd.DataFrame(sector_combined_dict)
+        fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
+        f_name = title + '.xlsx'
+        path = os.path.join(fold_path, f_name)
+        df.to_excel(path)
+
+
+

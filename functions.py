@@ -114,6 +114,13 @@ def create_dictionaries_of_sectors_with_dicts(sectors_l, *args):
     return args
 
 
+def create_dictionary_of_sectors_with_dicts(sectors_l):
+    tmp_dict = {}
+    for sector in sectors_l:
+        tmp_dict[sector] = {}
+    return tmp_dict
+
+
 def add_lack_of_data_instance(out_dict, sector, my_date):
     inner_dict = out_dict[sector]
     if my_date in inner_dict.keys():
@@ -137,9 +144,13 @@ def get_prev_year_quarter(year, quarter, back):
     quarters = 4
     prev_quarter = quarter - back
     prev_year = year
-    while prev_quarter < 1:
-        prev_quarter += quarters
-        prev_year -= 1
+    while prev_quarter not in [1, 2, 3, 4]:
+        if prev_quarter < 1:
+            prev_quarter += quarters
+            prev_year -= 1
+        elif prev_quarter > 4:
+            prev_quarter -= quarters
+            prev_year += 1
     return prev_year, prev_quarter
 
 
@@ -185,12 +196,9 @@ def dict_to_df_to_excel(f):
     def inner(sectors_l, sector_dict, title, my_calc_type, calculated_companies_l):
         fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
         sector_combined_dict, title, x_labels = f(sectors_l, sector_dict, title, my_calc_type, calculated_companies_l)
-        if my_calc_type is None:
-            df = pd.DataFrame(sector_combined_dict, index=x_labels)
-        else:
-            df = pd.DataFrame(sector_combined_dict, index=x_labels)
         f_name = title + '.xlsx'
         path = os.path.join(fold_path, f_name)
+        df = pd.DataFrame(sector_combined_dict, index=x_labels)
         df.to_excel(path)
         return None
     return inner
