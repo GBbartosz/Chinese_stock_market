@@ -3,7 +3,7 @@ import datetime
 import functions as f
 import math
 import numpy as np
-
+import pandas as pd
 
 def fulfill_dict(equation):
     def inner(min_date, *args):
@@ -119,8 +119,11 @@ def revenue_calc(dates_obj, incst):
 def revenue_change_calc(dates_obj, incst):
     year, quarter, date, min_date, attempt = dates_obj
     if attempt >= 1:
-        prev_year, prev_quarter = f.get_prev_year_quarter(year, quarter, 1)
-        revenue_change = incst.Revenue.period(year, quarter) / incst.Revenue.period(prev_year, prev_quarter) - 1
+        try:
+            prev_year, prev_quarter = f.get_prev_year_quarter(year, quarter, 1)
+            revenue_change = incst.Revenue.period(year, quarter) / incst.Revenue.period(prev_year, prev_quarter) - 1
+        except ZeroDivisionError:
+            revenue_change = 1
         return revenue_change
 
 
@@ -172,10 +175,6 @@ def create_close_price_volatility_for_comp_dict(close_price_in_sector_dict):
         my_average = sum(my_l) / len(my_l)
         return my_average
 
-    def convert_to_date(x):
-        x = datetime.datetime.strptime(x, '%Y-%m-%d').date()
-        return x
-
     outer_standard_deviation_dict = {}
     for sec in close_price_in_sector_dict.keys():
         outer_standard_deviation_dict[sec] = {}
@@ -183,7 +182,7 @@ def create_close_price_volatility_for_comp_dict(close_price_in_sector_dict):
         for comp in close_price_sec_dict.keys():
             df = close_price_sec_dict[comp]
             border_date = datetime.date(year=2020, month=1, day=1)
-            df['Date'] = df['Date'].apply(convert_to_date)
+            df.loc[:, 'Date'] = df.loc[:, 'Date'].apply(f.convert_to_date)
             df_bef = df[df['Date'] < border_date]
             df_aft = df[df['Date'] >= border_date]
             dfs = df_bef, df_aft
@@ -220,3 +219,76 @@ def create_close_price_volatility_for_sector_dict(outer_standard_deviation_dict)
         total_sec_std_dev_aft = total_sec_std_dev_aft / number_of_companies_in_sector
         sectors_standard_deviation_dict[sec] = [total_sec_std_dev_bef, total_sec_std_dev_aft]
     return sectors_standard_deviation_dict
+
+
+def maximum_price_spread(close_price_in_sector_dict):
+    sectors_avg_price_dict = avg_price_of_sector(close_price_in_sector_dict)
+    sectors_l = (sectors_avg_price_dict.keys())
+    spread_dict = {}
+    for sector in sectors_l:
+        y = sectors_avg_price_dict[sector][1]
+        y = list(y)
+        x_dates = sectors_avg_price_dict[sector][0]
+        min_y = min(y)
+        min_index = y.index(min_y)
+        min_date = x_dates[min_index]
+        max_y = max(y)
+        max_index = y.index(max_y)
+        max_date = x_dates[max_index]
+        spread = max_y - min_y
+        spread_adjst = spread / max_y
+        spread_dict[sector] = [min_date, min_y, max_date, max_y, spread, spread_adjst]
+    index_l = ['min_date', 'min_y', 'max_date', 'max_y', 'spread', 'spread_adjst']
+    df = pd.DataFrame(spread_dict)
+    df.index = index_l
+    path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data\sectors_spread.xlsx'
+    df.to_excel(path)
+
+
+def avg_price_of_sector(close_price_in_sector_dict):
+    sectors_avg_price_dict = {}
+    sectors_l = list(close_price_in_sector_dict.keys())
+    for sector in sectors_l:
+        comps_dict = close_price_in_sector_dict[sector]
+        comps_l = list(comps_dict.keys())
+        number_of_companies = len(comps_l)
+        y = None
+        for comp in comps_l:
+            df = comps_dict[comp]
+            tmp_y = np.array(df['Close'])
+            if y is None:
+                y = tmp_y
+            else:
+                y += tmp_y
+        y = y / number_of_companies
+        x_dates = np.array(df['Date'])
+        sectors_avg_price_dict[sector] = [x_dates, y]
+    return sectors_avg_price_dict
+
+
+@fulfill_dict
+def cash_flow_from_operating_activities_calc(dates_obj, cf):
+    year, quarter, date, min_date, attempt = dates_obj
+    cf_from_operating_activities = cf.CashfromOperations.period(year, quarter)
+    return cf_from_operating_activities
+
+
+@fulfill_dict
+def cash_flow_from_financing_activities_calc(dates_obj, cf):
+    year, quarter, date, min_date, attempt = dates_obj
+    cf_from_financing_activities = cf.CashfromInvesting.period(year, quarter)
+    return cf_from_financing_activities
+
+
+@fulfill_dict
+def cash_flow_from_investing_calc(dates_obj, cf):
+    year, quarter, date, min_date, attempt = dates_obj
+    cf_from_investing = cf.CashfromInvesting.period(year, quarter)
+    return cf_from_investing
+
+
+@fulfill_dict
+def operating_income_calc(dates_obj, incst):
+    year, quarter, date, min_date, attempt = dates_obj
+    operating_income = incst.OperatingIncome.period(year, quarter)
+    return operating_income

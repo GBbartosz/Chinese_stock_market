@@ -79,13 +79,13 @@ def get_following_dates_list(first_date):
     year = first_date.year
     month = first_date.month
     quarter = None
-    if month == 3:
+    if month in [1, 2, 3]:
         quarter = 1
-    elif month == 6:
+    elif month in [4, 5, 6]:
         quarter = 2
-    elif month == 9:
+    elif month in [7, 8, 9]:
         quarter = 3
-    elif month == 12:
+    elif month in [10, 11, 12]:
         quarter = 4
     else:
         ValueError('Month out of [3, 6, 9, 12]')
@@ -231,3 +231,9 @@ def equalize_dict_lists_and_to_file(my_dict, f_name):
     fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\lack_of_data_cause'
     path = os.path.join(fold_path, f_name)
     df.to_excel(path)
+
+
+def convert_to_date(x):
+    x = datetime.datetime.strptime(str(x), '%Y-%m-%d').date()
+    return x
+

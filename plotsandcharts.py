@@ -165,17 +165,14 @@ def standard_deviation_bef_aft_bar_chart_for_sec(sectors_standard_deviation_dict
     fig = plt.figure(figsize=(19, 12))
     width = 0.9 / len(sectors_l)
     sector_combined_dict = {}
-    print('for sectors')
     for sector in sectors_l:
         ax = plt.subplot()
         color = sector_color(sector)
         y = sectors_standard_deviation_dict[sector]
         ax.bar(x_axis, y, width=width, label=sector, align='center', color=color)
-        print(x_axis)
         x_axis += width
         sector_combined_dict[sector] = y
     plt.xticks(x_axis0, x_labels)
-    print(x_axis0)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=4, fancybox=True, shadow=True)
     title = 'sectors standard deviation'
     plt.title(title, loc='left', pad=40)
@@ -185,7 +182,7 @@ def standard_deviation_bef_aft_bar_chart_for_sec(sectors_standard_deviation_dict
     plt.savefig(path, dpi=300)
     plt.close(fig)
     #plt.show()
-    df = pd.DataFrame(sector_combined_dict)
+    df = pd.DataFrame(sector_combined_dict, index=x_labels)
     fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
     f_name = title + '.xlsx'
     path = os.path.join(fold_path, f_name)
@@ -205,16 +202,13 @@ def standard_deviation_bef_aft_bar_chart_for_comps_in_sec(comp_standard_deviatio
         width = 0.9 / len(comps_l)
         title = sector + '_standard_deviation'
         sector_combined_dict = {}
-        print('for comps')
         for comp in comps_dict.keys():
             ax = plt.subplot()
             y = comp_standard_deviation_dict[sector][comp]
             ax.bar(x_axis, y, width=width, label=comp, align='center')
-            print(x_axis)
             x_axis += width
             sector_combined_dict[comp] = y
         plt.xticks(x_axis0, x_labels)
-        print(x_axis0)
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.13), ncol=4, fancybox=True, shadow=True)
         plt.title(title, loc='left', pad=40)
         fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts\sectors\{}'.format(sector)
@@ -223,7 +217,144 @@ def standard_deviation_bef_aft_bar_chart_for_comps_in_sec(comp_standard_deviatio
         plt.savefig(path, dpi=300)
         plt.close(fig)
         #plt.show()
-        df = pd.DataFrame(sector_combined_dict)
+        df = pd.DataFrame(sector_combined_dict, index=x_labels)
+        fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
+        f_name = title + '.xlsx'
+        path = os.path.join(fold_path, f_name)
+        df.to_excel(path)
+
+
+def close_price_for_sectors_plot(close_price_in_sector_dict):
+    sectors_l = close_price_in_sector_dict.keys()
+    fig = plt.figure(figsize=(19, 12))
+    sector_combined_dict = {}
+    for sector in sectors_l:
+        if sector != 'Communication Services':
+            comps_dict = close_price_in_sector_dict[sector]
+            comps_l = list(comps_dict.keys())
+            number_of_companies = len(comps_l)
+            color = sector_color(sector)
+            y = None
+            for comp in comps_l:
+                df = comps_dict[comp]
+                x_labels = list(df['Date'])
+                x_axis = np.arange(len(x_labels), dtype=float)
+                tmp_y = np.array(df['Close'])
+                if y is None:
+                    y = tmp_y
+                else:
+                    y += tmp_y
+            y = y / number_of_companies
+            plt.plot(x_axis, y, color=color, label=sector)
+            sector_combined_dict[sector] = y
+    xlab = []
+    xax = []
+    for x, d in zip(x_axis, x_labels):
+        if d.year not in xlab:
+            xax.append(x)
+            xlab.append(d.year)
+    plt.xticks(xax, xlab)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=4, fancybox=True, shadow=True)
+    plt.grid()
+    title = 'Average close price for sectors'
+    plt.title(title, loc='left', pad=40)
+    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts'
+    f_name = title + '.png'
+    path = os.path.join(fold_path, f_name)
+    plt.savefig(path, dpi=300)
+    plt.close(fig)
+    df = pd.DataFrame(sector_combined_dict, index=x_labels)
+    fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
+    f_name = title + '.xlsx'
+    path = os.path.join(fold_path, f_name)
+    df.to_excel(path)
+
+
+def close_price_for_companies_in_sector_plot(close_price_in_sector_dict):
+    sectors_l = close_price_in_sector_dict.keys()
+    for sector in sectors_l:
+        print(sector)
+        fig = plt.figure(figsize=(19, 12))
+        comps_dict = close_price_in_sector_dict[sector]
+        comps_l = list(comps_dict.keys())
+        sector_combined_dict = {}
+
+        for comp in comps_l:
+            df = comps_dict[comp]
+            x_labels = list(df['Date'])
+            x_axis = np.arange(len(x_labels), dtype=float)
+            y = np.array(df['Close'])
+            plt.plot(x_axis, y, label=comp)
+            sector_combined_dict[comp] = y
+        xlab = []
+        xax = []
+        for x, d in zip(x_axis, x_labels):
+            if d.year not in xlab:
+                xax.append(x)
+                xlab.append(d.year)
+        plt.xticks(xax, xlab)
+        plt.grid()
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=4, fancybox=True, shadow=True)
+        title = 'Close price for companies in {}'.format(sector)
+        plt.title(title, loc='left', pad=40)
+        fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts\sectors\{}'.format(sector)
+        f_name = title + '.png'
+        path = os.path.join(fold_path, f_name)
+        plt.savefig(path, dpi=300)
+        plt.close(fig)
+        df = pd.DataFrame(sector_combined_dict, index=x_labels)
+        fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
+        f_name = title + '.xlsx'
+        path = os.path.join(fold_path, f_name)
+        df.to_excel(path)
+
+
+def close_price_change_for_each_sector(close_price_in_sector_dict):
+    sectors_l = close_price_in_sector_dict.keys()
+    for sector in sectors_l:
+        sector_combined_dict = {}
+        fig = plt.figure(figsize=(19, 12))
+        comps_dict = close_price_in_sector_dict[sector]
+        comps_l = list(comps_dict.keys())
+        color = sector_color(sector)
+        y = None
+        for comp in comps_l:
+            df = comps_dict[comp]
+            x_labels = list(df['Date'])
+            x_axis = np.arange(len(x_labels), dtype=float)
+            tmp_y = np.array(df['Close'])
+            if y is None:
+                y = tmp_y
+            else:
+                y += tmp_y
+        attempt = 0
+        y_change = []
+        for i in y:
+            if attempt > 0:
+                tmp_y = y[attempt] / y[attempt-1] -1
+                y_change.append(tmp_y)
+            attempt += 1
+        x_axis = x_axis[1:]
+        x_labels = x_labels[1:]
+        plt.plot(x_axis, y_change, color=color, label=sector)
+        sector_combined_dict[sector] = y_change
+        xlab = []
+        xax = []
+        for x, d in zip(x_axis, x_labels):
+            if d.year not in xlab:
+                xax.append(x)
+                xlab.append(d.year)
+        plt.xticks(xax, xlab)
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=4, fancybox=True, shadow=True)
+        plt.grid()
+        title = 'close price change for {}'.format(sector)
+        plt.title(title, loc='left', pad=40)
+        fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\charts'
+        f_name = title + '.png'
+        path = os.path.join(fold_path, f_name)
+        plt.savefig(path, dpi=300)
+        plt.close(fig)
+        df = pd.DataFrame(sector_combined_dict, index=x_labels)
         fold_path = r'C:\Users\Bartek\Desktop\ALK praca magisterska\python_res_data'
         f_name = title + '.xlsx'
         path = os.path.join(fold_path, f_name)

@@ -64,3 +64,10 @@ def prepare_dfs_to_common_timeline(dfs, min_date):
         dfs[i] = df
     incst_df, b_df, cf_df, price_df = dfs
     return incst_df, b_df, cf_df, price_df
+
+
+def create_full_price_df_in_period(price_df, min_date, max_date):
+    full_price_df = price_df.copy()
+    full_price_df.loc[:, 'Date'] = full_price_df.loc[:, 'Date'].apply(f.convert_to_date)
+    full_price_df = full_price_df.loc[(full_price_df['Date'] >= min_date) & (full_price_df['Date'] <= max_date)]
+    return full_price_df
