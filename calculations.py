@@ -5,6 +5,7 @@ import math
 import numpy as np
 import pandas as pd
 
+
 def fulfill_dict(equation):
     def inner(min_date, *args):
         tmp_dict = {}
@@ -29,7 +30,10 @@ def fulfill_dict(equation):
             if res is not None:
                 tmp_dict[date] = res
             attempt += 1
-        return tmp_dict
+        for k in tmp_dict.keys():
+            tmp_dict[k] = [tmp_dict[k]]
+        df = pd.DataFrame(tmp_dict)
+        return df
     return inner
 
 
@@ -292,3 +296,164 @@ def operating_income_calc(dates_obj, incst):
     year, quarter, date, min_date, attempt = dates_obj
     operating_income = incst.OperatingIncome.period(year, quarter)
     return operating_income
+
+
+@fulfill_dict
+def total_debt_calc(dates_obj, b):
+    year, quarter, date, min_date, attempt = dates_obj
+    total_debt = b.TotalDebt.period(year, quarter)
+    return total_debt
+
+
+@fulfill_dict
+def roe_calc(dates_obj, incst, b):
+    year, quarter, date, min_date, attempt = dates_obj
+    roe = incst.NetIncometoCompany.period(year, quarter) / b.TotalEquity.period(year, quarter)
+    return roe
+
+
+@fulfill_dict
+def roa_calc(dates_obj, incst, b):
+    year, quarter, date, min_date, attempt = dates_obj
+    roa = incst.NetIncometoCompany.period(year, quarter) / b.TotalAssets.period(year, quarter)
+    return roa
+
+
+@fulfill_dict
+def roc_calc(dates_obj, incst, b):
+    year, quarter, date, min_date, attempt = dates_obj
+    roc = incst.EBIT.period(year, quarter) / b.TotalEquity.period(year, quarter)
+    return roc
+
+
+@fulfill_dict
+def roce_calc(dates_obj, incst, b):
+    year, quarter, date, min_date, attempt = dates_obj
+    roce = incst.EBIT.period(year, quarter) / (b.TotalAssets.period(year, quarter) - b.TotalCurrentLiabilities.period(year, quarter))
+    return roce
+
+
+@fulfill_dict
+def gross_margin_calc(dates_obj, incst):
+    year, quarter, date, min_date, attempt = dates_obj
+    gross_margin = incst.GrossProfitMargin.period(year, quarter)
+    return gross_margin
+
+
+@fulfill_dict
+def ebitda_margin_calc(dates_obj, incst):
+    year, quarter, date, min_date, attempt = dates_obj
+    ebitda_margin = incst.EBITDA.period(year, quarter) / incst.Revenue.period(year, quarter)
+    return ebitda_margin
+
+
+@fulfill_dict
+def ebit_margin_calc(dates_obj, incst):
+    year, quarter, date, min_date, attempt = dates_obj
+    ebit_margin = incst.EBIT.period(year, quarter) / incst.Revenue.period(year, quarter)
+    return ebit_margin
+
+
+@fulfill_dict
+def net_margin_calc(dates_obj, incst):
+    year, quarter, date, min_date, attempt = dates_obj
+    net_margin = incst.NetIncometoCompany.period(year, quarter) / incst.Revenue.period(year, quarter)
+    return net_margin
+
+
+@fulfill_dict
+def debt_to_equity_ratio_calc(dates_obj, b):
+    year, quarter, date, min_date, attempt = dates_obj
+    d_e = b.TotalLiabilities.period(year, quarter) / b.TotalEquity.period(year, quarter)
+    return d_e
+
+
+@fulfill_dict
+def total_debt_to_total_assets_ratio_calc(dates_obj, b):
+    year, quarter, date, min_date, attempt = dates_obj
+    td_ta = b.TotalLiabilities.period(year, quarter) / b.TotalAssets.period(year, quarter)
+    return td_ta
+
+
+@fulfill_dict
+def capex_to_revenue_ratio_calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def altman_z_score_calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def beneish_m_score_calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def current_ratio_calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def eps_calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def peg_calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def debt_service_coverage_ratio_calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def cash_ratio_calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def operating_cash_flow_debt_ratio_calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def _calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def _calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return
+
+
+@fulfill_dict
+def _calc(dates_obj):
+    year, quarter, date, min_date, attempt = dates_obj
+
+    return

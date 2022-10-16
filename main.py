@@ -106,14 +106,19 @@ if __name__ == '__main__':
 
         company_capitalization_dict = calculations.capitalization_calc(min_date, incst, price)
         sector_capitalization_dict = f.add_new_dict_to_sector_dict_list(sector_capitalization_dict, company_capitalization_dict, sector)
+
         company_capitalization_change_dict = calculations.capitalization_change_calc(min_date, incst, price)
         sector_capitalization_change_dict = f.add_new_dict_to_sector_dict_list(sector_capitalization_change_dict, company_capitalization_change_dict, sector)
+
         company_pe_ratio_dict = calculations.pe_ratio_yearly_calc(min_date, incst, price)
         sector_pe_ratio_dict = f.add_new_dict_to_sector_dict_list(sector_pe_ratio_dict, company_pe_ratio_dict, sector)
+
         company_ps_ratio_dict = calculations.ps_ratio_yearly_calc(min_date, incst, price)
         sector_ps_ratio_dict = f.add_new_dict_to_sector_dict_list(sector_ps_ratio_dict, company_ps_ratio_dict, sector)
+
         company_revenue_dict = calculations.revenue_calc(min_date, incst)
         sector_revenue_dict = f.add_new_dict_to_sector_dict_list(sector_revenue_dict, company_revenue_dict, sector)
+
         company_revenue_change_dict = calculations.revenue_change_calc(min_date, incst)
         sector_revenue_change_dict = f.add_new_dict_to_sector_dict_list(sector_revenue_change_dict, company_revenue_change_dict, sector)
 
@@ -134,14 +139,19 @@ if __name__ == '__main__':
 
         company_net_income_change_dict = calculations.net_income_change_calc(min_date, incst)
         sector_net_income_change_dict = f.add_new_dict_to_sector_dict_list(sector_net_income_change_dict, company_net_income_change_dict, sector)
+
         company_pb_ratio = calculations.price_to_book_ratio_calc(min_date, incst, b, price)
         sector_pb_ratio = f.add_new_dict_to_sector_dict_list(sector_pb_ratio, company_pb_ratio, sector)
+
         company_price = calculations.price_calc(min_date, price)
         sector_price = f.add_new_dict_to_sector_dict_list(sector_price, company_price, sector)
+
         company_price_change = calculations.price_change_calc(min_date, price)
         sector_price_change = f.add_new_dict_to_sector_dict_list(sector_price_change, company_price_change, sector)
+
         companies_in_sector_dict[sector] = companies_in_sector_dict[sector] + [company]
         number_of_companies_in_sector[sector] += 1
+
 
     #plotsandcharts.sector_bar_chart(sectors_l, sector_capitalization_dict, 'Capitalization', 'sum', calculated_companies_in_sector_dict)
     #plotsandcharts.sector_bar_chart(sectors_l, sector_capitalization_change_dict, 'Capitalization change', 'average', calculated_companies_in_sector_dict)
@@ -158,13 +168,13 @@ if __name__ == '__main__':
     #plotsandcharts.sector_bar_chart(sectors_l, sector_operating_income, 'Operating income', 'sum', calculated_companies_in_sector_dict)
 
 
-    plotsandcharts.sector_bar_chart(sectors_l, sector_net_income_change_dict, 'Net income change', 'average', calculated_companies_in_sector_dict)
-    plotsandcharts.sector_bar_chart(sectors_l, sector_pb_ratio, 'Price to book ratio', 'average', calculated_companies_in_sector_dict)
-    plotsandcharts.sector_bar_chart(sectors_l, sector_price, 'Price', 'average', calculated_companies_in_sector_dict)
-    plotsandcharts.sector_bar_chart(sectors_l, sector_price_change, 'Price change', 'average', calculated_companies_in_sector_dict)
-    plotsandcharts.number_of_companies_in_sector_bar_chart(number_of_companies_in_sector)
+    #plotsandcharts.sector_bar_chart(sectors_l, sector_net_income_change_dict, 'Net income change', 'average', calculated_companies_in_sector_dict)
+    #plotsandcharts.sector_bar_chart(sectors_l, sector_pb_ratio, 'Price to book ratio', 'average', calculated_companies_in_sector_dict)
+    #plotsandcharts.sector_bar_chart(sectors_l, sector_price, 'Price', 'average', calculated_companies_in_sector_dict)
+    #plotsandcharts.sector_bar_chart(sectors_l, sector_price_change, 'Price change', 'average', calculated_companies_in_sector_dict)
+    #plotsandcharts.number_of_companies_in_sector_bar_chart(number_of_companies_in_sector)
 
-    for sector in sectors_l:
+    #for sector in sectors_l:
         #plotsandcharts.companies_in_sector_bar_chart(sector, sector_capitalization_dict, 'Capitalization', None, calculated_companies_in_sector_dict)
         #plotsandcharts.companies_in_sector_bar_chart(sector, sector_capitalization_change_dict, 'Capitalization change', None, calculated_companies_in_sector_dict)
         #plotsandcharts.companies_in_sector_bar_chart(sector, sector_pe_ratio_dict, 'PE ratio', None, calculated_companies_in_sector_dict)
@@ -179,21 +189,21 @@ if __name__ == '__main__':
         #plotsandcharts.companies_in_sector_bar_chart(sector, sector_operating_income, 'Operating income', None, calculated_companies_in_sector_dict)
 
 
-        plotsandcharts.companies_in_sector_bar_chart(sector, sector_net_income_change_dict, 'Net income change', None, calculated_companies_in_sector_dict)
-        plotsandcharts.companies_in_sector_bar_chart(sector, sector_pb_ratio, 'Price to book ratio', None, calculated_companies_in_sector_dict)
-        plotsandcharts.companies_in_sector_bar_chart(sector, sector_price, 'Price', None, calculated_companies_in_sector_dict)
-        plotsandcharts.companies_in_sector_bar_chart(sector, sector_price_change, 'Price change', None, calculated_companies_in_sector_dict)
+        #plotsandcharts.companies_in_sector_bar_chart(sector, sector_net_income_change_dict, 'Net income change', None, calculated_companies_in_sector_dict)
+        #plotsandcharts.companies_in_sector_bar_chart(sector, sector_pb_ratio, 'Price to book ratio', None, calculated_companies_in_sector_dict)
+        #plotsandcharts.companies_in_sector_bar_chart(sector, sector_price, 'Price', None, calculated_companies_in_sector_dict)
+        #plotsandcharts.companies_in_sector_bar_chart(sector, sector_price_change, 'Price change', None, calculated_companies_in_sector_dict)
 
-    comp_standard_deviation_dict = calculations.create_close_price_volatility_for_comp_dict(close_price_in_sector_dict)
-    sectors_standard_deviation_dict = calculations.create_close_price_volatility_for_sector_dict(comp_standard_deviation_dict)
-    plotsandcharts.standard_deviation_bef_aft_bar_chart_for_comps_in_sec(comp_standard_deviation_dict)
-    plotsandcharts.standard_deviation_bef_aft_bar_chart_for_sec(sectors_standard_deviation_dict)
-    plotsandcharts.close_price_for_companies_in_sector_plot(close_price_in_sector_dict)
-    plotsandcharts.close_price_for_sectors_plot(close_price_in_sector_dict)
+    #comp_standard_deviation_dict = calculations.create_close_price_volatility_for_comp_dict(close_price_in_sector_dict)
+    #sectors_standard_deviation_dict = calculations.create_close_price_volatility_for_sector_dict(comp_standard_deviation_dict)
+    #plotsandcharts.standard_deviation_bef_aft_bar_chart_for_comps_in_sec(comp_standard_deviation_dict)
+    #plotsandcharts.standard_deviation_bef_aft_bar_chart_for_sec(sectors_standard_deviation_dict)
+    #plotsandcharts.close_price_for_companies_in_sector_plot(close_price_in_sector_dict)
+    #plotsandcharts.close_price_for_sectors_plot(close_price_in_sector_dict)
 
-    calculations.maximum_price_spread(close_price_in_sector_dict)
+    #calculations.maximum_price_spread(close_price_in_sector_dict)
 
-    plotsandcharts.close_price_change_for_each_sector(close_price_in_sector_dict)
+    #plotsandcharts.close_price_change_for_each_sector(close_price_in_sector_dict)
 
     for k in number_of_companies_in_sector.keys():
         number_of_companies_in_sector[k] = [number_of_companies_in_sector[k]]

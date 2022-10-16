@@ -1,4 +1,6 @@
 import os.path
+
+import numpy as np
 import pandas as pd
 import datetime
 
@@ -157,20 +159,24 @@ def get_prev_year_quarter(year, quarter, back):
 def key_error_handler(self, year, month, day):
     try:
         col_name = '{year}-{month}-{day}'.format(year=year, month=month, day=day)
-        res = float(self.df[col_name])
+        res = self.df[col_name]
     except KeyError:
         try:
             col_name = '{year}-{month}-{day}'.format(year=year, month=month, day=day)
             col_name = datetime.datetime.strptime(col_name, '%Y-%m-%d').date()
             col_name = col_name + datetime.timedelta(days=1)
             col_name = str(col_name)
-            res = float(self.df[col_name])
+            res = self.df[col_name]
         except KeyError:
             col_name = '{year}-{month}-{day}'.format(year=year, month=month, day=day)
             col_name = datetime.datetime.strptime(col_name, '%Y-%m-%d').date()
             col_name = col_name - datetime.timedelta(days=1)
             col_name = str(col_name)
-            res = float(self.df[col_name])
+            res = self.df[col_name]
+    try:
+        res = float(res)
+    except TypeError:
+        res = np.NaN
     return res
 
 
