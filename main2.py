@@ -179,6 +179,32 @@ def main():
     main_df_f_path = r'C:\Users\Bartek\Desktop\ALK MGR 2022.10\wskazniki.xlsx'
     main_df.to_excel(main_df_f_path)
 
+    # full price
+    final_full_price_df = None
+    for s in close_price_in_sector_dict.keys():
+        for c in close_price_in_sector_dict[s].keys():
+            if final_full_price_df is None:
+                final_full_price_df_columns = list(close_price_in_sector_dict[s][c].iloc[:, 0])
+                final_full_price_df = close_price_in_sector_dict[s][c].iloc[:, 1].to_frame()
+                final_full_price_df = final_full_price_df.transpose()
+                final_full_price_df.columns = final_full_price_df_columns
+                final_full_price_df['Sector'] = s
+                final_full_price_df['Company'] = c
+            else:
+                tmp_df_columns = list(close_price_in_sector_dict[s][c].iloc[:, 0])
+                tmp_df = close_price_in_sector_dict[s][c].iloc[:, 1].to_frame()
+                tmp_df = tmp_df.transpose()
+                tmp_df.columns = tmp_df_columns
+                tmp_df['Sector'] = s
+                tmp_df['Company'] = c
+                tmp_frames = [final_full_price_df, tmp_df]
+                final_full_price_df = pd.concat(tmp_frames)
+                if tmp_df_columns != final_full_price_df_columns:
+                    print('Different columns for: {}'.format(c))
+    final_full_price_df = pd.concat([final_full_price_df.iloc[:, -2:],final_full_price_df.iloc[:, :-2]], axis=1)
+    final_full_price_df_path = r'C:\Users\Bartek\Desktop\ALK MGR 2022.10\price.xlsx'
+    final_full_price_df.to_excel(final_full_price_df_path)
+
     for k in number_of_companies_in_sector.keys():
         number_of_companies_in_sector[k] = [number_of_companies_in_sector[k]]
     df = pd.DataFrame(number_of_companies_in_sector)

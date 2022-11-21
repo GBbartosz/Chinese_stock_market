@@ -73,7 +73,8 @@ def find_nearest_price_date(f_d_d, price_dates_list):
         d = 0
         while f_d_d > price_dates_list[d]:
             d += 1
-        f_p_d = price_dates_list[d-1]
+        # f_p_d = price_dates_list[d-1]
+        f_p_d = price_dates_list[d]
     return f_p_d
 
 
