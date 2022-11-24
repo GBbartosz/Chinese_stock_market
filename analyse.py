@@ -121,9 +121,9 @@ def get_beta_of_stock_to_sector(df, sectors_l, companies_l, sec_comp_dict):
             variance = statistics.pvariance(sec_avg_price)
             print(variance)
             covariance_data = [company_price_l, sec_avg_price]
-            covariance = np.cov(covariance_data)[0][1]
-            print(covariance)
-            beta = covariance / variance
+            mcovariance = np.cov(covariance_data)[0][1]
+            print(mcovariance)
+            beta = mcovariance / variance
             beta_dict[company] = beta
 
     print(beta_dict)
@@ -253,37 +253,118 @@ def covid_influence_on_volatility(all_price_df, covid_df):
     # Close
     # Volume
 
+def abnormal_returns(price_df, sectors_l, companies_l):
+    # czy beta powinna odnosić się do całego 3 letniego okresu
+    # czy risk free rate to 3 letnie obligacje chińskie na moment początku okresu
 
-def abnormal_returns_of_sectors(price_df, sectors_l):
-    columns_names = price_df.columns
-    columns = list(range(len(columns_names)))
-    change_avg_l = []
-    change_df = price_df.iloc[:, 1:3]
 
-    for t in columns[4:]:
-        curr_price = price_df.iloc[:, t]
-        prev_price = price_df.iloc[:, t-1]
-        change = curr_price / prev_price - 1
-        change_df[t] = change
-        change_avg = statistics.mean(change)
-        change_avg_l.append(change_avg)
-    grouped_price_df = change_df.groupby('Sector').mean()
-    abnormal_dict = {}
-    for sector in sectors_l:
-        sector_avg_l = grouped_price_df.loc[sector, :].values.tolist()
-        abnormal = np.array(sector_avg_l) - np.array(change_avg_l)
-        abnormal_dict[sector] = abnormal
-    abnormal_df = pd.DataFrame(abnormal_dict, index=columns_names[4:])
-    #file_path = r'C:\Users\Bartek\Desktop\ALK MGR 2022.10\abnormal_returns.xlsx'
-    #abnormal_df.to_excel(file_path)
-    sec_color_dict = {}
-    for sector in sectors_l:
-        color = sector_color(sector)
-        sec_color_dict[sector] = color
-    lines = abnormal_df.plot.line(color=sec_color_dict)
-    plt.grid(visible=True)
-    lines.yaxis.set_major_formatter(mtick.PercentFormatter(1))
-    plt.show()
+    # https://tradingeconomics.com/china/government-bond-yield
+    # 3 year bonds
+    risk_free_rate = 0.027751
+
+    def prepare_change(price_df):
+        columns_names = price_df.columns
+        columns = list(range(len(columns_names)))
+        change_avg_l = []
+        change_df = price_df.iloc[:, 1:3]
+
+        for t in columns[4:]:
+            curr_price = price_df.iloc[:, t]
+            prev_price = price_df.iloc[:, t - 1]
+            change = curr_price / prev_price - 1
+            change_df[t] = change
+            change_avg = statistics.mean(change)
+            change_avg_l.append(change_avg)
+
+        return change_df, change_avg_l, columns_names
+
+    def get_beta(total_avg_l, instance_avg_l):
+        cov = np.cov(instance_avg_l, total_avg_l)[0][1]
+        var = statistics.variance(total_avg_l)
+        beta = cov / var
+        return beta
+
+    def abnormal_returns_of_sectors(price_df, sectors_l):
+        nonlocal risk_free_rate
+        change_df, change_avg_l, columns_names = prepare_change(price_df)
+        grouped_price_df = change_df.groupby('Sector').mean()
+        abnormal_dict = {}
+        sector_beta_dict = {}
+
+        for sector in sectors_l:
+            sector_avg_l = grouped_price_df.loc[sector, :].values.tolist()
+            beta = get_beta(change_avg_l, sector_avg_l)
+            sector_beta_dict[sector] = beta
+            abnormal_l = []
+            for market_return, sector_return in zip(change_avg_l, sector_avg_l):
+                expected_return = risk_free_rate + beta * (market_return - risk_free_rate)
+                abnormal_return = sector_return - expected_return
+                abnormal_l.append(abnormal_return)
+            abnormal_dict[sector] = abnormal_l
+        abnormal_df = pd.DataFrame(abnormal_dict, index=columns_names[4:])
+        file_path = r'C:\Users\Bartek\Desktop\ALK MGR 2022.10\abnormal_returns_sectors.xlsx'
+        abnormal_df.to_excel(file_path)
+        #sec_color_dict = {}
+        #for sector in sectors_l:
+        #    color = sector_color(sector)
+        #    sec_color_dict[sector] = color
+        #lines = abnormal_df.plot.line(color=sec_color_dict)
+        #plt.grid(visible=True)
+        #lines.yaxis.set_major_formatter(mtick.PercentFormatter(1))
+        #plt.show()
+
+    def abnormal_return_of_companies_to_market(price_df, companies_l):
+        nonlocal risk_free_rate
+        change_df, change_avg_l, columns_names = prepare_change(price_df)
+
+        abnormal_dict = {}
+        company_beta_dict = {}
+
+        for company in companies_l:
+            company_avg_l = change_df[change_df['Company'] == company].values.tolist()[0]
+            company_avg_l = company_avg_l[2:]
+            beta = get_beta(change_avg_l, company_avg_l)
+            company_beta_dict[company] = beta
+            abnormal_l = []
+            for market_return, company_return in zip(change_avg_l, company_avg_l):
+                expected_return = risk_free_rate + beta * (market_return - risk_free_rate)
+                abnormal_return = company_return - expected_return
+                abnormal_l.append(abnormal_return)
+            # abnormal = np.array(sector_avg_l) - np.array(change_avg_l)
+            abnormal_dict[company] = abnormal_l
+        abnormal_df = pd.DataFrame(abnormal_dict, index=columns_names[4:])
+        file_path = r'C:\Users\Bartek\Desktop\ALK MGR 2022.10\abnormal_returns_companies_to_market.xlsx'
+        abnormal_df.to_excel(file_path)
+
+    def abnormal_return_of_companies_to_sector(price_df, companies_l):
+        nonlocal risk_free_rate
+        change_df, change_avg_l, columns_names = prepare_change(price_df)
+
+        sector_grouped_change_df = change_df.groupby('Sector').mean()
+
+        abnormal_dict = {}
+        company_beta_dict = {}
+        for company in companies_l:
+            company_avg_l = change_df[change_df['Company'] == company].values.tolist()[0]
+            sector = company_avg_l[0]
+            change_avg_l = sector_grouped_change_df.loc[sector, :]
+            company_avg_l = company_avg_l[2:]
+            beta = get_beta(change_avg_l, company_avg_l)
+            company_beta_dict[company] = beta
+            abnormal_l = []
+            for market_return, company_return in zip(change_avg_l, company_avg_l):
+                expected_return = risk_free_rate + beta * (market_return - risk_free_rate)
+                abnormal_return = company_return - expected_return
+                abnormal_l.append(abnormal_return)
+            # abnormal = np.array(sector_avg_l) - np.array(change_avg_l)
+            abnormal_dict[company] = abnormal_l
+        abnormal_df = pd.DataFrame(abnormal_dict, index=columns_names[4:])
+        file_path = r'C:\Users\Bartek\Desktop\ALK MGR 2022.10\abnormal_returns_companies_to_sector.xlsx'
+        abnormal_df.to_excel(file_path)
+
+    abnormal_returns_of_sectors(price_df, sectors_l)
+    abnormal_return_of_companies_to_market(price_df, companies_l)
+    abnormal_return_of_companies_to_sector(price_df, companies_l)
 
 
 def analyse():
@@ -319,7 +400,7 @@ def analyse():
     # sectors_price_compared_to_start_date(price_df_grouped, sectors_l)
     # company_loop_indicator_level_to_mean(df, companies_l, indicators_l)
     # covid_influence_on_volatility(all_price_df, covid_df)                                     # to do
-    abnormal_returns_of_sectors(price_df, sectors_l)                                            # summarize to months
+    abnormal_returns(price_df, sectors_l, companies_l)
 
 if __name__ == '__main__':
     analyse()
