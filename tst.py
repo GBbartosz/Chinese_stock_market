@@ -11,6 +11,8 @@
 
 import functions as f
 import pandas as pd
+import numpy as np
+
 
 #def calc(f):
 #    def f2(minl, *args):
@@ -37,15 +39,18 @@ import pandas as pd
 #print(res)
 
 
-f.dataframe_display_options()
-sector_companys_dic = f.create_sector_companys_dictionary()
-companies = sector_companys_dic['Industrials']
-for company in companies:
-    print(company)
-    path = 'C:\\Users\\Bartek\\Desktop\\ALK praca magisterska\\China_stock_data\\{} - Income Statement.csv'.format(company)
-    try:
-        df = pd.read_csv(path)
-        print(df.iloc[24, :])
-    except:
-        continue
+def outer():
+    a = 1
+    print(a)
 
+    def inner():
+        nonlocal a
+
+        print(a)
+
+    inner()
+    print(a)
+
+
+
+outer()
